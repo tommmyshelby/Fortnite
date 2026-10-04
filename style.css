@@ -1,0 +1,223 @@
+:root {
+    --bg-dark: #0f111a;
+    --card-bg: #1a1d2e;
+    --accent-purple: #7289da;
+    --accent-hover: #5b6eae;
+    --gold: #ffcc00;
+    --text-white: #ffffff;
+    --text-muted: #a0a5ba;
+    --border-color: #2e344e;
+    --success: #2ecc71;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    min-height: 100vh;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #141724;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--gold);
+}
+
+.discord-btn {
+    background-color: var(--accent-purple);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.discord-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+}
+
+#logged-in-view {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-purple);
+}
+
+.username {
+    font-weight: 600;
+}
+
+.logout-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    color: white;
+    border-color: white;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.intro-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+.intro-card h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.intro-card p {
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 16px;
+    background-color: #0d0f17;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #7289da, #2ecc71);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.warning-banner {
+    background-color: rgba(241, 196, 15, 0.15);
+    border: 1px solid #f1c40f;
+    color: #f39c12;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ghosts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+
+.ghost-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+    user-select: none;
+}
+
+.ghost-card.checked {
+    border-color: var(--success);
+    background: rgba(46, 204, 113, 0.05);
+}
+
+.ghost-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 0.75rem;
+}
+
+.ghost-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.ghost-type {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.check-btn {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #2b3048;
+    color: var(--text-white);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.ghost-card.checked .check-btn {
+    background-color: var(--success);
+}
+
+.check-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none !important;
+}
