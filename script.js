@@ -1,1494 +1,2050 @@
-
-const SUPABASE_URL =
-    "https://ykbqnxqlbttqzaerqgnb.supabase.co";
-
-
-const SUPABASE_ANON_KEY =
-    "sb_publishable_nHZCz4UMQecRv8WmvIiZ6A_j_aQLRx_";
-
-
-
-const WEBSITE_URL =
-    "https://tommmyshelby.github.io/Fortnite/";
-
-
-
-
-let supabaseClient = null;
-
-if (
-    window.supabase &&
-    typeof window.supabase.createClient === "function"
-) {
-    supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-} else {
-    console.error(
-        "Supabase wurde nicht geladen. " +
-        "Prüfe, ob supabase-js in deiner index.html eingebunden ist."
-    );
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 
-/* =========================================================
-   SPRITES
-   ========================================================= */
+:root {
+    --bg: #07090f;
+    --bg-soft: #0b0e16;
+    --card: rgba(16, 20, 31, 0.72);
+    --card-solid: #10141f;
 
-const SPRITES_DATA = [
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.16);
 
-    {
-        id: "bush",
-        name: "Bush Sprite",
-        rarity: "Rare",
-        description:
-            "Erzeugt nach einiger Zeit einen Busch um dich.",
-        image: "assets/sprites/bush.png"
-    },
+    --text: #f5f7fb;
+    --muted: #8b93a7;
+    --muted-light: #b8bfd0;
 
-    {
-        id: "adventure",
-        name: "Adventure Sprite",
-        rarity: "Rare",
-        description:
-            "Verbessert beim Leveln zufällig einen Gegenstand in deinem Inventar.",
-        image: "assets/sprites/adventure.png"
-    },
+    --accent: #7c5cff;
+    --accent-two: #22d3ee;
 
-    {
-        id: "jonesy",
-        name: "Jonesy Sprite",
-        rarity: "Rare",
-        description:
-            "Stellt nach erlittenem Schaden Gesundheit oder Schild wieder her.",
-        image: "assets/sprites/jonesy.png"
-    },
+    --success: #37e89a;
+    --danger: #ff647c;
 
-    {
-        id: "8-bit",
-        name: "8-Bit Sprite",
-        rarity: "Rare",
-        description:
-            "Bringt eine 8-Bit-Schrotflinte in deine erste Truhe.",
-        image: "assets/sprites/8-bit.png"
-    },
-
-    {
-        id: "sonic",
-        name: "Sonic Sprite",
-        rarity: "Epic",
-        description:
-            "Erhöht deine Sprintgeschwindigkeit.",
-        image: "assets/sprites/sonic.png"
-    },
-
-    {
-        id: "tails",
-        name: "Tails Sprite",
-        rarity: "Epic",
-        description:
-            "Ermöglicht dir, in der Luft zu schweben.",
-        image: "assets/sprites/tails.png"
-    },
-
-    {
-        id: "shadow",
-        name: "Shadow Sprite",
-        rarity: "Epic",
-        description:
-            "Lädt Waffen automatisch nach, auch wenn sie nicht ausgerüstet sind.",
-        image: "assets/sprites/shadow.png"
-    },
-
-    {
-        id: "killswitch",
-        name: "Killswitch Sprite",
-        rarity: "Epic",
-        description:
-            "Aktiviert Hangtime mit verbesserter Genauigkeit.",
-        image: "assets/sprites/killswitch.png"
-    },
-
-    {
-        id: "storm-scout",
-        name: "Storm Scout Sprite",
-        rarity: "Epic",
-        description:
-            "Erzeugt Overdrive nach ausreichend Sturmschaden.",
-        image: "assets/sprites/storm-scout.png"
-    },
-
-    {
-        id: "pond",
-        name: "Pond Sprite",
-        rarity: "Epic",
-        description:
-            "Ermöglicht nach der Landung einen stärkeren Sprung.",
-        image: "assets/sprites/pond.png"
-    },
-
-    {
-        id: "blinky",
-        name: "Blinky Sprite",
-        rarity: "Epic",
-        description:
-            "Kann dich nach erlittenem Schaden tarnen.",
-        image: "assets/sprites/blinky.png"
-    },
-
-    {
-        id: "spooky-dash",
-        name: "Spooky Dash Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht eine besondere Phasen-Dash-Fähigkeit.",
-        image: "assets/sprites/spooky-dash.png"
-    },
-
-    {
-        id: "vampire",
-        name: "Vampire Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht einen Lebensraub-Effekt bei Schaden.",
-        image: "assets/sprites/vampire.png"
-    },
-
-    {
-        id: "the-deer",
-        name: "The Deer Sprite",
-        rarity: "Epic",
-        description:
-            "Verstärkt deinen Nahkampfschaden.",
-        image: "assets/sprites/deer.png"
-    },
-
-    {
-        id: "jackrabbit",
-        name: "Jackrabbit Sprite",
-        rarity: "Legendary",
-        description:
-            "Ermöglicht einen zusätzlichen Sprung in der Luft.",
-        image: "assets/sprites/jackrabbit.png"
-    },
-
-    {
-        id: "x-ray",
-        name: "X-Ray Sprite",
-        rarity: "Legendary",
-        description:
-            "Markiert regelmäßig Gegner in deiner Umgebung.",
-        image: "assets/sprites/x-ray.png"
-    },
-
-    {
-        id: "mega-man",
-        name: "Mega Man Sprite",
-        rarity: "Rare",
-        description:
-            "Verändert deine Bewegung beim Rutschen und Schwimmen.",
-        image: "assets/sprites/mega-man.png"
-    },
-
-    {
-        id: "overshield",
-        name: "Overshield Sprite",
-        rarity: "Legendary",
-        description:
-            "Verleiht dir einen zusätzlichen Overshield.",
-        image: "assets/sprites/overshield.png"
-    },
-
-    {
-        id: "onigiri",
-        name: "Onigiri Sprite",
-        rarity: "Epic",
-        description:
-            "Aktiviert nach dem Konsumieren eines Gegenstands Overdrive.",
-        image: "assets/sprites/onigiri.png"
-    },
-
-    {
-        id: "crash",
-        name: "Crash Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht eine besondere Wirbelwind-Fähigkeit.",
-        image: "assets/sprites/crash.png"
-    },
-
-    {
-        id: "dumpster-dive",
-        name: "Dumpster Dive Sprite",
-        rarity: "Rare",
-        description:
-            "Kann Nahrung aus Verstecken erhalten.",
-        image: "assets/sprites/dumpster-dive.png"
-    },
-
-    {
-        id: "klombo",
-        name: "Klombo Sprite",
-        rarity: "Mythic",
-        description:
-            "Kann dir beim Leveln zufällige Gegenstände geben.",
-        image: "assets/sprites/klombo.png"
-    },
-
-    {
-        id: "crown",
-        name: "Crown Sprite",
-        rarity: "Mythic",
-        description:
-            "Verleiht zusätzliche Crown Wins nach einem Victory Royale.",
-        image: "assets/sprites/crown.png"
-    },
-
-    {
-        id: "morgana",
-        name: "Morgana Sprite",
-        rarity: "Epic",
-        description:
-            "Verbessert die Wirkung von Heilgegenständen.",
-        image: "assets/sprites/morgana.png"
-    },
-
-    {
-        id: "birthday",
-        name: "Birthday Sprite",
-        rarity: "Rare",
-        description:
-            "Besonderer Geburtstags-Sprite.",
-        image: "assets/sprites/birthday.png"
-    }
-
-];
+    --radius: 18px;
+}
 
 
-
-let currentUser = null;
-
-let collectedSprites = [];
-
-let currentFilter = "all";
-
-let searchText = "";
+html {
+    scroll-behavior: smooth;
+}
 
 
+body {
+    min-height: 100vh;
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(124, 92, 255, 0.13),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(34, 211, 238, 0.08),
+            transparent 25%
+        ),
+        var(--bg);
 
-        setupControls();
+    color: var(--text);
 
-        setupAuth();
+    font-family:
+        "Inter",
+        sans-serif;
 
-        renderSprites();
-
-        updateProgress();
-
-    }
-);
-
-
-
-
-function setupAuth() {
-
-    const loginButton =
-        document.getElementById("login-btn");
-
-    const logoutButton =
-        document.getElementById("logout-btn");
+    overflow-x: hidden;
+}
 
 
-    if (loginButton) {
+button,
+input,
+select {
+    font: inherit;
+}
 
-        loginButton.addEventListener(
-            "click",
-            loginWithDiscord
+
+button {
+    cursor: pointer;
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================
+   BACKGROUND
+========================================= */
+
+.background {
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: -1;
+
+    overflow: hidden;
+}
+
+
+.background-grid {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0.25;
+
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
         );
 
-    }
+    background-size: 70px 70px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 80%
+        );
+}
 
 
-    if (logoutButton) {
+.background-glow {
+    position: absolute;
 
-        logoutButton.addEventListener(
-            "click",
-            logout
+    width: 500px;
+    height: 500px;
+
+    border-radius: 50%;
+
+    filter: blur(120px);
+
+    opacity: 0.12;
+}
+
+
+.glow-one {
+    background: var(--accent);
+
+    left: -200px;
+    top: 200px;
+}
+
+
+.glow-two {
+    background: var(--accent-two);
+
+    right: -250px;
+    top: 500px;
+}
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    height: 76px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 5%;
+
+    border-bottom: 1px solid var(--border);
+
+    background:
+        rgba(7, 9, 15, 0.78);
+
+    backdrop-filter: blur(22px);
+}
+
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    color: var(--text);
+
+    text-decoration: none;
+}
+
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #4c7dff
         );
 
-    }
+    box-shadow:
+        0 8px 30px
+        rgba(124, 92, 255, 0.28);
+
+    font-size: 19px;
+    font-weight: 900;
+}
 
 
-    restoreSupabaseSession();
+.brand-text {
+    display: flex;
+
+    flex-direction: column;
+
+    line-height: 1;
+}
 
 
+.brand-text strong {
+    font-size: 14px;
 
-    if (supabaseClient) {
-
-        supabaseClient.auth.onAuthStateChange(
-            async (event, session) => {
-
-                console.log(
-                    "Supabase Auth:",
-                    event
-                );
+    letter-spacing: 0.12em;
+}
 
 
-                if (session && session.user) {
+.brand-text span {
+    margin-top: 4px;
 
-                    await setCurrentUser(
-                        session.user
-                    );
+    color: var(--muted);
 
-                } else {
+    font-size: 9px;
 
-                    currentUser = null;
+    letter-spacing: 0.18em;
+}
 
-                    collectedSprites = [];
 
-                    updateUI();
+.nav-center {
+    display: flex;
 
-                    renderSprites();
+    align-items: center;
 
-                    updateProgress();
+    gap: 8px;
 
-                }
+    color: var(--muted);
 
-            }
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--success);
+
+    box-shadow:
+        0 0 12px
+        rgba(55, 232, 154, 0.8);
+}
+
+
+.account-area {
+    display: flex;
+
+    align-items: center;
+}
+
+
+.discord-login {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px 16px;
+
+    border: 1px solid
+        rgba(124, 92, 255, 0.3);
+
+    border-radius: 11px;
+
+    background:
+        rgba(124, 92, 255, 0.12);
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+
+.discord-login:hover {
+    transform: translateY(-1px);
+
+    background:
+        rgba(124, 92, 255, 0.2);
+
+    border-color:
+        rgba(124, 92, 255, 0.55);
+}
+
+
+.discord-symbol {
+    font-size: 16px;
+}
+
+
+.logged-in {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid
+        rgba(124, 92, 255, 0.5);
+}
+
+
+.user-info {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.user-info strong {
+    font-size: 13px;
+}
+
+
+.user-info span {
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+.logout-btn {
+    margin-left: 8px;
+
+    padding: 8px 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: var(--muted-light);
+
+    font-size: 11px;
+}
+
+
+.logout-btn:hover {
+    color: var(--text);
+
+    border-color: var(--border-hover);
+}
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.page {
+    width: min(1400px, 90%);
+
+    margin: auto;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+    min-height: 600px;
+
+    display: grid;
+
+    grid-template-columns:
+        1.1fr
+        0.9fr;
+
+    align-items: center;
+
+    gap: 50px;
+}
+
+
+.hero-content {
+    padding: 80px 0;
+}
+
+
+.hero-pill {
+    width: fit-content;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 7px 11px;
+
+    border: 1px solid
+        rgba(124, 92, 255, 0.22);
+
+    border-radius: 999px;
+
+    background:
+        rgba(124, 92, 255, 0.07);
+
+    color: #b9aaff;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+
+.hero-pill span {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--success);
+
+    box-shadow:
+        0 0 10px
+        var(--success);
+}
+
+
+.hero h1 {
+    max-width: 800px;
+
+    margin-top: 22px;
+
+    font-size:
+        clamp(48px, 7vw, 88px);
+
+    line-height: 0.98;
+
+    letter-spacing: -0.065em;
+
+    font-weight: 900;
+}
+
+
+.hero h1 span {
+    background:
+        linear-gradient(
+            100deg,
+            #a68cff,
+            #5d8cff,
+            #35d9ef
         );
 
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+}
+
+
+.hero p {
+    max-width: 620px;
+
+    margin-top: 25px;
+
+    color: var(--muted);
+
+    font-size: 16px;
+
+    line-height: 1.8;
+}
+
+
+.hero-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    margin-top: 34px;
+}
+
+
+.hero-button {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 13px 18px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #5277ff
+        );
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 12px 35px
+        rgba(124, 92, 255, 0.25);
+
+    transition: 0.2s ease;
+}
+
+
+.hero-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 18px 45px
+        rgba(124, 92, 255, 0.35);
+}
+
+
+.hero-status {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+.status-check {
+    width: 20px;
+    height: 20px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(55, 232, 154, 0.1);
+
+    color: var(--success);
+}
+
+
+/* =========================================
+   HERO VISUAL
+========================================= */
+
+.hero-visual {
+    position: relative;
+
+    height: 430px;
+
+    display: grid;
+
+    place-items: center;
+}
+
+
+.hero-card {
+    position: absolute;
+
+    width: 270px;
+    height: 350px;
+
+    border-radius: 24px;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.1);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(26, 31, 47, 0.95),
+            rgba(11, 14, 23, 0.92)
+        );
+
+    box-shadow:
+        0 40px 100px
+        rgba(0, 0, 0, 0.45);
+}
+
+
+.hero-card-back {
+    transform:
+        rotate(-9deg)
+        translate(-50px, 10px);
+
+    opacity: 0.45;
+}
+
+
+.hero-card-main {
+    transform:
+        rotate(6deg);
+
+    padding: 20px;
+
+    overflow: hidden;
+}
+
+
+.hero-card-top,
+.hero-card-bottom {
+    display: flex;
+
+    justify-content: space-between;
+
+    color: var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+}
+
+
+.hero-card-top span:last-child {
+    color: #c2b6ff;
+}
+
+
+.hero-sprite {
+    height: 260px;
+
+    display: grid;
+
+    place-items: center;
+
+    position: relative;
+}
+
+
+.sprite-glow {
+    position: absolute;
+
+    width: 170px;
+    height: 170px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(124, 92, 255, 0.55),
+            transparent 65%
+        );
+
+    filter: blur(20px);
+}
+
+
+.sprite-placeholder {
+    position: relative;
+
+    font-size: 100px;
+
+    color: #b9aaff;
+
+    text-shadow:
+        0 0 35px
+        rgba(124, 92, 255, 0.8);
+}
+
+
+.hero-card-bottom {
+    align-items: center;
+
+    padding-top: 13px;
+
+    border-top: 1px solid var(--border);
+}
+
+
+.hero-card-bottom strong {
+    color: var(--text);
+
+    font-size: 12px;
+
+    letter-spacing: 0;
+}
+
+
+.hero-card-bottom span {
+    letter-spacing: 0;
+
+    font-weight: 500;
+}
+
+
+/* =========================================
+   WARNING
+========================================= */
+
+.auth-warning {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 15px 18px;
+
+    margin-bottom: 70px;
+
+    border: 1px solid
+        rgba(255, 196, 87, 0.12);
+
+    border-radius: 15px;
+
+    background:
+        rgba(255, 196, 87, 0.045);
+}
+
+
+.warning-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background:
+        rgba(255, 196, 87, 0.1);
+
+    color: #ffc457;
+
+    font-weight: 900;
+}
+
+
+.auth-warning strong {
+    font-size: 12px;
+}
+
+
+.auth-warning p {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+.auth-warning button {
+    margin-left: auto;
+
+    padding: 8px 13px;
+
+    border: 1px solid
+        rgba(255, 196, 87, 0.2);
+
+    border-radius: 9px;
+
+    background:
+        rgba(255, 196, 87, 0.08);
+
+    color: #ffc457;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   HEADINGS
+========================================= */
+
+.section-heading {
+    display: flex;
+
+    align-items: end;
+
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+}
+
+
+.section-heading.compact {
+    margin-top: 70px;
+}
+
+
+.eyebrow {
+    color: #8f7bff;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.2em;
+}
+
+
+.section-heading h2 {
+    margin-top: 5px;
+
+    font-size: 25px;
+
+    letter-spacing: -0.04em;
+}
+
+
+.database-status {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+.database-status i {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--success);
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        1.5fr
+        1fr
+        1fr
+        1fr;
+
+    gap: 12px;
+}
+
+
+.stat-card {
+    min-height: 145px;
+
+    padding: 20px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 23, 35, 0.85),
+            rgba(12, 15, 24, 0.65)
+        );
+
+    backdrop-filter: blur(20px);
+}
+
+
+.stat-main {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+}
+
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 15px;
+
+    background:
+        rgba(124, 92, 255, 0.1);
+
+    color: #a894ff;
+
+    font-size: 23px;
+}
+
+
+.stat-content {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.stat-content > span,
+.stat-label {
+    color: var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.13em;
+}
+
+
+.stat-content strong {
+    margin-top: 4px;
+
+    font-size: 34px;
+
+    line-height: 1;
+}
+
+
+.stat-content small,
+.stat-card > small {
+    margin-top: 8px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+.stat-content small b {
+    color: var(--muted-light);
+}
+
+
+.stat-number {
+    margin-top: 8px;
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.05em;
+}
+
+
+.mini-progress {
+    height: 4px;
+
+    margin-top: 15px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+}
+
+
+.mini-progress div {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent-two)
+        );
+
+    transition: width 0.5s ease;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.controls-section {
+    margin-top: 70px;
+
+    padding: 20px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    background:
+        rgba(13, 17, 27, 0.65);
+}
+
+
+.search-wrapper {
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+}
+
+
+.search-wrapper:focus-within {
+    border-color:
+        rgba(124, 92, 255, 0.45);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(124, 92, 255, 0.05);
+}
+
+
+.search-icon {
+    color: var(--muted);
+
+    font-size: 22px;
+}
+
+
+.search-wrapper input {
+    flex: 1;
+
+    min-width: 0;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-size: 13px;
+}
+
+
+.search-wrapper input::placeholder {
+    color: #5f6678;
+}
+
+
+kbd {
+    padding: 4px 7px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 6px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+.filter-row {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 12px;
+}
+
+
+.filter-group {
+    display: flex;
+
+    gap: 6px;
+}
+
+
+.filter-btn,
+.select-filter {
+    height: 35px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    transition: 0.18s ease;
+}
+
+
+.filter-btn:hover,
+.select-filter:hover {
+    color: var(--text);
+
+    border-color: var(--border-hover);
+}
+
+
+.filter-btn.active {
+    border-color:
+        rgba(124, 92, 255, 0.4);
+
+    background:
+        rgba(124, 92, 255, 0.13);
+
+    color: #c0b4ff;
+}
+
+
+.select-filter {
+    margin-left: auto;
+
+    outline: none;
+
+    cursor: pointer;
+}
+
+
+.select-filter + .select-filter {
+    margin-left: 0;
+}
+
+
+.select-filter option {
+    background: #10141f;
+
+    color: white;
+}
+
+
+/* =========================================
+   FAMILIES
+========================================= */
+
+.family-list {
+    display: flex;
+
+    gap: 8px;
+
+    overflow-x: auto;
+
+    padding-bottom: 7px;
+}
+
+
+.family-list::-webkit-scrollbar {
+    height: 4px;
+}
+
+
+.family-list::-webkit-scrollbar-thumb {
+    background: #252b3b;
+
+    border-radius: 99px;
+}
+
+
+.family-btn {
+    flex-shrink: 0;
+
+    padding: 9px 13px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    transition: 0.18s ease;
+}
+
+
+.family-btn:hover {
+    color: var(--text);
+
+    border-color: var(--border-hover);
+}
+
+
+.family-btn.active {
+    background:
+        rgba(124, 92, 255, 0.12);
+
+    color: #c1b6ff;
+
+    border-color:
+        rgba(124, 92, 255, 0.35);
+}
+
+
+.result-count {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================
+   SPRITE GRID
+========================================= */
+
+.sprites-section {
+    margin-top: 24px;
+}
+
+
+.sprites-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(190px, 1fr)
+        );
+
+    gap: 13px;
+}
+
+
+.sprite-card {
+    position: relative;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            150deg,
+            rgba(20, 25, 38, 0.92),
+            rgba(10, 13, 21, 0.9)
+        );
+
+    transition:
+        transform 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+
+.sprite-card:hover {
+    transform: translateY(-5px);
+
+    border-color:
+        rgba(124, 92, 255, 0.28);
+
+    box-shadow:
+        0 22px 50px
+        rgba(0, 0, 0, 0.3);
+}
+
+
+.sprite-card.owned {
+    border-color:
+        rgba(55, 232, 154, 0.25);
+}
+
+
+.sprite-image-container {
+    position: relative;
+
+    height: 190px;
+
+    display: grid;
+
+    place-items: center;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 55%,
+            rgba(124, 92, 255, 0.13),
+            transparent 60%
+        );
+}
+
+
+.sprite-image-container::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent 60%,
+            rgba(8, 10, 16, 0.6)
+        );
+
+    pointer-events: none;
+}
+
+
+.sprite-image {
+    width: 82%;
+
+    height: 82%;
+
+    object-fit: contain;
+
+    position: relative;
+
+    z-index: 1;
+
+    filter:
+        drop-shadow(
+            0 15px 18px
+            rgba(0, 0, 0, 0.45)
+        );
+
+    transition:
+        transform 0.3s ease;
+}
+
+
+.sprite-card:hover .sprite-image {
+    transform: scale(1.07);
+}
+
+
+.owned-badge {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    z-index: 5;
+
+    width: 27px;
+    height: 27px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(55, 232, 154, 0.12);
+
+    border: 1px solid
+        rgba(55, 232, 154, 0.3);
+
+    color: var(--success);
+
+    font-size: 12px;
+
+    opacity: 0;
+
+    transform: scale(0.8);
+
+    transition: 0.2s ease;
+}
+
+
+.sprite-card.owned .owned-badge {
+    opacity: 1;
+
+    transform: scale(1);
+}
+
+
+.sprite-info {
+    padding: 15px;
+}
+
+
+.sprite-meta {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+}
+
+
+.sprite-rarity {
+    width: fit-content;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+
+.rarity-mythic {
+    background:
+        rgba(255, 168, 66, 0.12);
+
+    color: #ffb95f;
+}
+
+
+.rarity-legendary {
+    background:
+        rgba(255, 125, 67, 0.11);
+
+    color: #ff9b73;
+}
+
+
+.rarity-epic {
+    background:
+        rgba(184, 92, 255, 0.12);
+
+    color: #c58cff;
+}
+
+
+.rarity-rare {
+    background:
+        rgba(69, 151, 255, 0.12);
+
+    color: #71aaff;
+}
+
+
+.rarity-special {
+    background:
+        rgba(55, 232, 154, 0.1);
+
+    color: #5ae9a9;
+}
+
+
+.sprite-id {
+    color: #596176;
+
+    font-size: 8px;
+
+    font-weight: 700;
+}
+
+
+.sprite-name {
+    margin-top: 9px;
+
+    color: var(--text);
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.sprite-family {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+.sprite-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-top: 13px;
+
+    padding-top: 11px;
+
+    border-top: 1px solid var(--border);
+}
+
+
+.sprite-variant {
+    color: var(--muted-light);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.sprite-status {
+    padding: 6px 9px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+
+    background:
+        rgba(255, 255, 255, 0.035);
+
+    color: var(--muted);
+
+    font-size: 8px;
+
+    font-weight: 800;
+}
+
+
+.sprite-card.owned .sprite-status {
+    border-color:
+        rgba(55, 232, 154, 0.22);
+
+    background:
+        rgba(55, 232, 154, 0.08);
+
+    color: var(--success);
+}
+
+
+.sprite-status:hover {
+    color: var(--text);
+
+    border-color: var(--border-hover);
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+.loading-state {
+    min-height: 280px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    color: var(--muted);
+}
+
+
+.loading-state strong {
+    color: var(--text);
+
+    font-size: 13px;
+}
+
+
+.loading-state span {
+    font-size: 10px;
+}
+
+
+.loader {
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 5px;
+
+    border: 3px solid
+        rgba(255, 255, 255, 0.07);
+
+    border-top-color:
+        var(--accent);
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.8s linear infinite;
+}
+
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
     }
 
 }
 
 
+/* =========================================
+   ERROR
+========================================= */
+
+.error-state {
+    min-height: 280px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    text-align: center;
+}
 
 
-async function restoreSupabaseSession() {
+.error-state > div {
+    font-size: 28px;
 
-    if (!supabaseClient) {
+    color: var(--danger);
+}
 
-        console.error(
-            "Supabase Client ist nicht verfügbar."
-        );
 
-        updateUI();
+.error-state strong {
+    font-size: 14px;
+}
 
-        return;
 
+.error-state span {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+.error-state button {
+    margin-top: 10px;
+
+    padding: 8px 13px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: var(--text);
+
+    font-size: 11px;
+}
+
+
+/* =========================================
+   EMPTY
+========================================= */
+
+.empty-state {
+    grid-column: 1 / -1;
+
+    min-height: 250px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    color: var(--muted);
+
+    text-align: center;
+}
+
+
+.empty-state strong {
+    color: var(--text);
+
+    font-size: 15px;
+}
+
+
+.empty-state span {
+    font-size: 11px;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-top: 100px;
+
+    padding: 28px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+
+.footer-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.footer-brand .brand-icon {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+
+.footer-brand > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.footer-brand strong {
+    font-size: 11px;
+
+    letter-spacing: 0.12em;
+}
+
+
+.footer-brand span {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+
+.footer-info {
+    display: flex;
+
+    gap: 8px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1050px) {
+
+    .hero {
+        grid-template-columns: 1fr;
     }
 
 
-    try {
+    .hero-content {
+        padding-bottom: 0;
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.getSession();
+        text-align: center;
+    }
 
 
-        if (error) {
-
-            console.error(
-                "Session Fehler:",
-                error
-            );
-
-            currentUser = null;
-
-            updateUI();
-
-            return;
-
-        }
+    .hero-pill {
+        margin: auto;
+    }
 
 
-        if (
-            data &&
-            data.session &&
-            data.session.user
-        ) {
+    .hero h1 {
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-            await setCurrentUser(
-                data.session.user
-            );
 
-        } else {
+    .hero p {
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-            currentUser = null;
 
-            collectedSprites = [];
+    .hero-actions {
+        justify-content: center;
+    }
 
-            updateUI();
 
-            renderSprites();
+    .hero-visual {
+        height: 390px;
+    }
 
-            updateProgress();
 
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Fehler beim Wiederherstellen der Session:",
-            error
-        );
-
-        currentUser = null;
-
-        updateUI();
-
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
 }
 
 
+@media (max-width: 700px) {
 
-
-async function loginWithDiscord() {
-
-    if (!supabaseClient) {
-
-        alert(
-            "Supabase wurde nicht geladen."
-        );
-
-        return;
-
+    .navbar {
+        padding: 0 4%;
     }
 
 
-    if (
-        !SUPABASE_ANON_KEY ||
-        SUPABASE_ANON_KEY ===
-        "DEIN_SUPABASE_PUBLISHABLE_KEY"
-    ) {
-
-        alert(
-            "Der Supabase Publishable/Anon Key fehlt noch in der script.js."
-        );
-
-        console.error(
-            "SUPABASE_ANON_KEY wurde noch nicht gesetzt."
-        );
-
-        return;
-
+    .nav-center {
+        display: none;
     }
 
 
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.signInWithOAuth({
-
-                provider: "discord",
-
-                options: {
-
-                    redirectTo:
-                        WEBSITE_URL
-
-                }
-
-            });
-
-
-        if (error) {
-
-            console.error(
-                "Discord Login Fehler:",
-                error
-            );
-
-            alert(
-                "Discord Login fehlgeschlagen:\n\n" +
-                error.message
-            );
-
-            return;
-
-        }
-
-
-        console.log(
-            "Discord Login gestartet:",
-            data
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Login Exception:",
-            error
-        );
-
-        alert(
-            "Beim Discord Login ist ein Fehler aufgetreten."
-        );
-
-    }
-
-}
-
-
-
-
-async function setCurrentUser(user) {
-
-    if (!user) {
-
-        currentUser = null;
-
-        collectedSprites = [];
-
-        updateUI();
-
-        renderSprites();
-
-        updateProgress();
-
-        return;
-
+    .user-info {
+        display: none;
     }
 
 
-    currentUser = user;
-
-
-    console.log(
-        "Discord Benutzer angemeldet:",
-        currentUser
-    );
-
-
-    await loadUserData();
-
-
-    updateUI();
-
-    renderSprites();
-
-    updateProgress();
-
-}
-
-
-async function logout() {
-
-    if (!supabaseClient) {
-
-        return;
-
+    .page {
+        width: 92%;
     }
 
 
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient.auth.signOut();
+    .hero {
+        min-height: 560px;
+    }
 
 
-        if (error) {
-
-            console.error(
-                "Logout Fehler:",
-                error
-            );
-
-            alert(
-                "Logout fehlgeschlagen:\n\n" +
-                error.message
-            );
-
-            return;
-
-        }
+    .hero h1 {
+        font-size: 49px;
+    }
 
 
-        currentUser = null;
+    .hero-actions {
+        flex-direction: column;
 
-        collectedSprites = [];
-
-
-        updateUI();
-
-        renderSprites();
-
-        updateProgress();
+        align-items: center;
+    }
 
 
-    } catch (error) {
+    .hero-visual {
+        transform: scale(0.82);
+    }
 
-        console.error(
-            "Logout Exception:",
-            error
-        );
 
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .filter-row {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .filter-group {
+        overflow-x: auto;
+
+        padding-bottom: 2px;
+    }
+
+
+    .select-filter {
+        width: 100%;
+
+        margin-left: 0;
+    }
+
+
+    .sprites-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 9px;
+    }
+
+
+    .sprite-image-container {
+        height: 145px;
+    }
+
+
+    .sprite-info {
+        padding: 11px;
+    }
+
+
+    .sprite-name {
+        font-size: 12px;
+    }
+
+
+    .sprite-footer {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .sprite-status {
+        width: 100%;
+    }
+
+
+    footer {
+        flex-direction: column;
+
+        align-items: flex-start;
     }
 
 }
 
 
+@media (max-width: 430px) {
 
+    .discord-login {
+        padding: 9px 11px;
 
-async function loadUserData() {
-
-    if (!currentUser) {
-
-        collectedSprites = [];
-
-        return;
-
+        font-size: 10px;
     }
 
 
-    try {
+    .brand-text {
+        display: none;
+    }
 
 
-
-        const metadata =
-            currentUser.user_metadata || {};
-
-
-        const savedSprites =
-            metadata.collected_sprites;
+    .hero h1 {
+        font-size: 43px;
+    }
 
 
-        if (Array.isArray(savedSprites)) {
-
-            collectedSprites =
-                savedSprites.filter(
-                    id =>
-                        SPRITES_DATA.some(
-                            sprite =>
-                                sprite.id === id
-                        )
-                );
-
-        } else {
-
-            collectedSprites = [];
-
-        }
-
-
-        console.log(
-            "Gesammelte Sprites geladen:",
-            collectedSprites
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Fehler beim Laden der User-Daten:",
-            error
-        );
-
-        collectedSprites = [];
-
+    .hero p {
+        font-size: 13px;
     }
 
 }
-
-
-
-
-async function saveUserData() {
-
-    if (!currentUser) {
-
-        return false;
-
-    }
-
-
-    if (!supabaseClient) {
-
-        return false;
-
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.updateUser({
-
-                data: {
-
-                    collected_sprites:
-                        collectedSprites
-
-                }
-
-            });
-
-
-        if (error) {
-
-            console.error(
-                "Sprite-Daten konnten nicht gespeichert werden:",
-                error
-            );
-
-            alert(
-                "Die Sprite-Daten konnten nicht gespeichert werden."
-            );
-
-            return false;
-
-        }
-
-
-
-        if (
-            data &&
-            data.user
-        ) {
-
-            currentUser =
-                data.user;
-
-        }
-
-
-        console.log(
-            "Sprite-Daten gespeichert:",
-            collectedSprites
-        );
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Speichern Exception:",
-            error
-        );
-
-        return false;
-
-    }
-
-}
-
-
-
-
-function updateUI() {
-
-    const loggedOut =
-        document.getElementById(
-            "logged-out-view"
-        );
-
-
-    const loggedIn =
-        document.getElementById(
-            "logged-in-view"
-        );
-
-
-    const warning =
-        document.getElementById(
-            "auth-warning"
-        );
-
-
-    if (!loggedOut || !loggedIn) {
-
-        console.warn(
-            "Login UI Elemente fehlen in der index.html."
-        );
-
-        return;
-
-    }
-
-
-    if (currentUser) {
-
-        loggedOut.classList.add(
-            "hidden"
-        );
-
-
-        loggedIn.classList.remove(
-            "hidden"
-        );
-
-
-        if (warning) {
-
-            warning.classList.add(
-                "hidden"
-            );
-
-        }
-
-
- 
-        const userName =
-            document.getElementById(
-                "user-name"
-            );
-
-
-        if (userName) {
-
-            userName.textContent =
-                getDiscordUsername(
-                    currentUser
-                );
-
-        }
-
-
-        /*
-         * Discord Avatar
-         */
-
-        const userAvatar =
-            document.getElementById(
-                "user-avatar"
-            );
-
-
-        if (userAvatar) {
-
-            userAvatar.src =
-                getDiscordAvatar(
-                    currentUser
-                );
-
-            userAvatar.alt =
-                getDiscordUsername(
-                    currentUser
-                );
-
-        }
-
-
-    } else {
-
-        loggedOut.classList.remove(
-            "hidden"
-        );
-
-
-        loggedIn.classList.add(
-            "hidden"
-        );
-
-
-        if (warning) {
-
-            warning.classList.remove(
-                "hidden"
-            );
-
-        }
-
-    }
-
-
-    updateProgress();
-
-}
-
-
-
-function getDiscordUsername(user) {
-
-    if (!user) {
-
-        return "Discord User";
-
-    }
-
-
-    const metadata =
-        user.user_metadata || {};
-
-
-    return (
-        metadata.global_name ||
-        metadata.full_name ||
-        metadata.name ||
-        metadata.user_name ||
-        metadata.preferred_username ||
-        user.email?.split("@")[0] ||
-        "Discord User"
-    );
-
-}
-
-
-
-function getDiscordAvatar(user) {
-
-    if (!user) {
-
-        return (
-            "https://cdn.discordapp.com/embed/avatars/0.png"
-        );
-
-    }
-
-
-    const metadata =
-        user.user_metadata || {};
-
-
-
-
-    if (metadata.avatar_url) {
-
-        return metadata.avatar_url;
-
-    }
-
-
-
-
-    const avatar =
-        metadata.avatar;
-
-
-    const discordId =
-        metadata.provider_id ||
-        metadata.sub ||
-        user.user_metadata?.id;
-
-
-    if (
-        avatar &&
-        discordId
-    ) {
-
-        return (
-            `https://cdn.discordapp.com/avatars/` +
-            `${discordId}/${avatar}.png?size=128`
-        );
-
-    }
-
-
-    return (
-        "https://cdn.discordapp.com/embed/avatars/0.png"
-    );
-
-}
-
-
-
-
-function setupControls() {
-
-    const search =
-        document.getElementById(
-            "search-input"
-        );
-
-
-    if (search) {
-
-        search.addEventListener(
-            "input",
-            event => {
-
-                searchText =
-                    event.target.value
-                        .trim()
-                        .toLowerCase();
-
-
-                renderSprites();
-
-            }
-        );
-
-    }
-
-
-    document
-        .querySelectorAll(
-            ".filter-btn"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        document
-                            .querySelectorAll(
-                                ".filter-btn"
-                            )
-                            .forEach(
-                                btn => {
-
-                                    btn.classList.remove(
-                                        "active"
-                                    );
-
-                                }
-                            );
-
-
-                        button.classList.add(
-                            "active"
-                        );
-
-
-                        currentFilter =
-                            button.dataset.filter ||
-                            "all";
-
-
-                        renderSprites();
-
-                    }
-                );
-
-            }
-        );
-
-}
-
-
-
-
-async function toggleSprite(spriteId) {
-
-    if (!currentUser) {
-
-        alert(
-            "Bitte melde dich zuerst mit Discord an!"
-        );
-
-        return;
-
-    }
-
-
-    const spriteExists =
-        SPRITES_DATA.some(
-            sprite =>
-                sprite.id === spriteId
-        );
-
-
-    if (!spriteExists) {
-
-        console.error(
-            "Unbekannter Sprite:",
-            spriteId
-        );
-
-        return;
-
-    }
-
-
-    const index =
-        collectedSprites.indexOf(
-            spriteId
-        );
-
-
-    if (index >= 0) {
-
- 
-        collectedSprites.splice(
-            index,
-            1
-        );
-
-    } else {
-
-
-
-        collectedSprites.push(
-            spriteId
-        );
-
-    }
-
-
-
-
-    const saved =
-        await saveUserData();
-
-
-    if (!saved) {
-
- 
-        await loadUserData();
-
-    }
-
-
-    renderSprites();
-
-    updateProgress();
-
-}
-
-
-
-function getVisibleSprites() {
-
-    return SPRITES_DATA.filter(
-        sprite => {
-
-            const matchesSearch =
-                sprite.name
-                    .toLowerCase()
-                    .includes(
-                        searchText
-                    );
-
-
-            const owned =
-                collectedSprites.includes(
-                    sprite.id
-                );
-
-
-            let matchesFilter =
-                true;
-
-
-            if (
-                currentFilter ===
-                "owned"
-            ) {
-
-                matchesFilter =
-                    owned;
-
-            }
-
-
-            if (
-                currentFilter ===
-                "missing"
-            ) {
-
-                matchesFilter =
-                    !owned;
-
-            }
-
-
-            return (
-                matchesSearch &&
-                matchesFilter
-            );
-
-        }
-    );
-
-}
-
-
-
-function renderSprites() {
-
-    const container =
-        document.getElementById(
-            "sprites-container"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    const sprites =
-        getVisibleSprites();
-
-
-    container.innerHTML =
-        "";
-
-
-    const spriteCount =
-        document.getElementById(
-            "sprite-count"
-        );
-
-
-    if (spriteCount) {
-
-        spriteCount.textContent =
-            `${sprites.length} Sprites`;
-
-    }
-
-
-    if (
-        sprites.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                🔎
-
-                <h3>
-                    Keine Sprites gefunden
-                </h3>
-
-                <p>
-                    Versuche einen anderen Suchbegriff.
-                </p>
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    sprites.forEach(
-        sprite => {
-
-            const owned =
-                collectedSprites.includes(
-                    sprite.id
-                );
-
-
-            const card =
-                document.createElement(
-                    "article"
-                );
-
-
-            card.className =
-                `sprite-card ${
-                    owned
-                        ? "owned"
-                        : ""
-                }`;
-
-
-            const rarityClass =
-                `rarity-${sprite.rarity.toLowerCase()}`;
-
-
-            card.innerHTML = `
-
-                <div class="owned-badge">
-                    ✓
-                </div>
-
-
-                <div class="sprite-image-container">
-
-                    <img
-                        class="sprite-image"
-                        src="${escapeHtml(sprite.image)}"
-                        alt="${escapeHtml(sprite.name)}"
-                        loading="lazy"
-                        onerror="this.style.opacity='0.15'"
-                    >
-
-                </div>
-
-
-                <div
-                    class="sprite-rarity ${rarityClass}"
-                >
-                    ${escapeHtml(sprite.rarity)}
-                </div>
-
-
-                <h3 class="sprite-name">
-                    ${escapeHtml(sprite.name)}
-                </h3>
-
-
-                <p class="sprite-description">
-                    ${escapeHtml(sprite.description)}
-                </p>
-
-
-                <button
-                    class="sprite-status"
-                    type="button"
-                    data-sprite-id="${escapeHtml(sprite.id)}"
-                >
-                    ${
-                        owned
-                            ? "✓ Gesammelt"
-                            : "Als gesammelt markieren"
-                    }
-                </button>
-
-            `;
-
-
-            const button =
-                card.querySelector(
-                    ".sprite-status"
-                );
-
-
-            if (button) {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        toggleSprite(
-                            sprite.id
-                        );
-
-                    }
-                );
-
-            }
-
-
-            container.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-
-
-
-function escapeHtml(value) {
-
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-}
-
-
-
-function updateProgress() {
-
-    const total =
-        SPRITES_DATA.length;
-
-
-    const collected =
-        collectedSprites.filter(
-            id =>
-                SPRITES_DATA.some(
-                    sprite =>
-                        sprite.id === id
-                )
-        ).length;
-
-
-    const percentage =
-        total === 0
-
-            ? 0
-
-            : Math.round(
-                (
-                    collected /
-                    total
-                ) * 100
-            );
-
-
-    const progressBar =
-        document.getElementById(
-            "progress-bar-fill"
-        );
-
-
-    if (progressBar) {
-
-        progressBar.style.width =
-            `${percentage}%`;
-
-    }
-
-
-    const progressNumber =
-        document.getElementById(
-            "progress-number"
-        );
-
-
-    if (progressNumber) {
-
-        progressNumber.textContent =
-            `${percentage}%`;
-
-    }
-
-
-    const progressText =
-        document.getElementById(
-            "progress-text"
-        );
-
-
-    if (progressText) {
-
-        progressText.textContent =
-            `${collected} von ${total} gesammelt`;
-
-    }
-
-}
-
-
-
-
-window.toggleSprite =
-    toggleSprite;
-
-
-
-
-window.loginWithDiscord =
-    loginWithDiscord;
-
-
-window.logout =
-    logout;
