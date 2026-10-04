@@ -1,1068 +1,610 @@
+/* =========================================================
+   SPRITE VAULT
+   Fortnite Sprite Collection
+   ========================================================= */
 
+// =========================================================
+// SUPABASE
+// =========================================================
 
-"use strict";
+const SUPABASE_URL = "https://ykbqnxqlbttqzaerqgnb.supabase.co";
 
-
-
-const SUPABASE_URL =
-    "https://ykbqnxqlbttqzaerqgnb.supabase.co";
-
-const SUPABASE_KEY =
+const SUPABASE_ANON_KEY =
     "sb_publishable_nHZCz4UMQecRv8WmvIiZ6A_j_aQLRx_";
 
-const WEBSITE_URL =
-    "https://tommmyshelby.github.io/Fortnite/";
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
-const SPRITES_DATA_URL =
+// =========================================================
+// CONFIG
+// =========================================================
+
+const SPRITES_URL =
     "https://raw.githubusercontent.com/valincius/fn-sprites/main/src/sprites.json";
 
+const REDIRECT_URL =
+    "https://tommmyshelby.github.io/Fortnite/";
 
-
-let supabaseClient = null;
-
-if (
-    window.supabase &&
-    typeof window.supabase.createClient === "function"
-) {
-    supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-} else {
-    console.error(
-        "Supabase konnte nicht geladen werden."
-    );
-}
-
-
+// =========================================================
+// STATE
+// =========================================================
 
 let currentUser = null;
 
 let sprites = [];
-
 let collectedSprites = [];
 
 let currentFamily = "all";
-
 let currentSearch = "";
-
 let currentRarity = "all";
-
 let currentVariant = "all";
-
 let currentSort = "default";
+let currentCollectionFilter = "all";
 
+// =========================================================
+// DOM
+// =========================================================
 
+const $ = (selector) => document.querySelector(selector);
 
+const loginBtn = $("#login-btn");
+const logoutBtn = $("#logout-btn");
 
-function $(id) {
-    return document.getElementById(id);
-}
+const loggedInView = $("#logged-in-view");
+const userAvatar = $("#user-avatar");
+const userName = $("#user-name");
 
+const authWarning = $("#auth-warning");
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
+const databaseStatus = $("#database-status");
 
-        console.log(
-            "Sprite Vault wird gestartet..."
-        );
+const collectedCount = $("#collected-count");
+const totalCount = $("#total-count");
+const progressNumber = $("#progress-number");
+const progressBarFill = $("#progress-bar-fill");
 
-        setupControls();
+const familyCount = $("#family-count");
+const variantCount = $("#variant-count");
 
-        setupAuth();
+const searchInput = $("#search-input");
+const rarityFilter = $("#rarity-filter");
+const variantFilter = $("#variant-filter");
+const sortFilter = $("#sort-filter");
 
-        await loadSprites();
+const familyList = $("#family-list");
+const spritesContainer = $("#sprites-container");
 
-    }
-);
+const loadingState = $("#loading-state");
+const errorState = $("#error-state");
+const errorMessage = $("#error-message");
 
 
+// =========================================================
+// INITIALIZATION
+// =========================================================
 
-function setupAuth() {
+document.addEventListener("DOMContentLoaded", async () => {
+    setupControls();
+    setupAuthButtons();
 
-    if (!supabaseClient) {
+    await initializeAuth();
+    await loadSprites();
+});
 
-        console.error(
-            "Supabase Client fehlt."
-        );
 
-        return;
+// =========================================================
+// AUTH
+// =========================================================
 
-    }
-
-    supabaseClient.auth
-        .getSession()
-        .then(({ data, error }) => {
-
-            if (error) {
-
-                console.error(
-                    "Session Fehler:",
-                    error
-                );
-
-                return;
-
-            }
-
-            if (data && data.session) {
-
-                setCurrentUser(
-                    data.session.user
-                );
-
-            } else {
-
-                setCurrentUser(
-                    null
-                );
-
-            }
-
-        });
-
-
-    /*
-       Auth Änderungen überwachen
-    */
-
-    supabaseClient.auth.onAuthStateChange(
-        async (event, session) => {
-
-            console.log(
-                "Auth Event:",
-                event
-            );
-
-
-            if (session && session.user) {
-
-                setCurrentUser(
-                    session.user
-                );
-
-            } else {
-
-                setCurrentUser(
-                    null
-                );
-
-            }
-
-        }
-    );
-
-
-    /*
-       Login Button
-    */
-
-    const loginButton =
-        $("login-btn");
-
-    if (loginButton) {
-
-        loginButton.addEventListener(
-            "click",
-            loginWithDiscord
-        );
-
-    }
-
-
-    /*
-       Logout Button
-    */
-
-    const logoutButton =
-        $("logout-btn");
-
-    if (logoutButton) {
-
-        logoutButton.addEventListener(
-            "click",
-            logout
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   DISCORD LOGIN
-========================================================= */
-
-async function loginWithDiscord() {
-
-    if (!supabaseClient) {
-
-        alert(
-            "Supabase konnte nicht geladen werden."
-        );
-
-        return;
-
-    }
-
-
-    const button =
-        $("login-btn");
-
-
+async function initializeAuth() {
     try {
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.innerHTML =
-                "⏳ Discord wird geöffnet...";
-
-        }
-
-
         const {
-            data,
+            data: { session },
             error
-        } =
-            await supabaseClient.auth.signInWithOAuth({
-
-                provider: "discord",
-
-                options: {
-
-                    redirectTo:
-                        WEBSITE_URL
-
-                }
-
-            });
-
+        } = await supabaseClient.auth.getSession();
 
         if (error) {
-
-            console.error(
-                "Discord Login Fehler:",
-                error
-            );
-
-            alert(
-                "Discord Login fehlgeschlagen:\n\n" +
-                error.message
-            );
-
-            if (button) {
-
-                button.disabled = false;
-
-                button.innerHTML =
-                    '<span class="discord-symbol">◉</span> Mit Discord anmelden';
-
-            }
-
+            console.error("Supabase Session Error:", error);
             return;
-
         }
 
+        if (session?.user) {
+            await handleLoggedInUser(session.user);
+        } else {
+            handleLoggedOutUser();
+        }
 
-        /*
-           Supabase übernimmt den Redirect.
-        */
-
-        console.log(
-            "Discord OAuth gestartet:",
-            data
-        );
+        supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+            if (session?.user) {
+                await handleLoggedInUser(session.user);
+            } else {
+                handleLoggedOutUser();
+            }
+        });
 
     } catch (error) {
-
-        console.error(
-            "Login Exception:",
-            error
-        );
-
-        alert(
-            "Beim Discord Login ist ein Fehler aufgetreten."
-        );
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.innerHTML =
-                '<span class="discord-symbol">◉</span> Mit Discord anmelden';
-
-        }
-
+        console.error("Auth initialization failed:", error);
     }
-
 }
 
 
-/* =========================================================
-   CURRENT USER
-========================================================= */
+// =========================================================
+// LOGIN
+// =========================================================
 
-function setCurrentUser(user) {
+function setupAuthButtons() {
 
-    currentUser =
-        user || null;
+    if (loginBtn) {
+        loginBtn.addEventListener("click", async () => {
 
+            loginBtn.disabled = true;
+
+            try {
+
+                const { error } =
+                    await supabaseClient.auth.signInWithOAuth({
+                        provider: "discord",
+
+                        options: {
+                            redirectTo: REDIRECT_URL
+                        }
+                    });
+
+                if (error) {
+                    console.error("Discord Login Error:", error);
+                    showAuthError(error.message);
+                }
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                showAuthError(error.message);
+            }
+
+            loginBtn.disabled = false;
+        });
+    }
+
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+
+            try {
+
+                const { error } =
+                    await supabaseClient.auth.signOut();
+
+                if (error) {
+                    console.error("Logout Error:", error);
+                    return;
+                }
+
+                collectedSprites = [];
+
+                updateUserInterface();
+                updateProgress();
+                renderSprites();
+
+            } catch (error) {
+                console.error("Logout Error:", error);
+            }
+        });
+    }
+}
+
+
+// =========================================================
+// HANDLE LOGIN
+// =========================================================
+
+async function handleLoggedInUser(user) {
+
+    currentUser = user;
+
+    console.log("Logged in:", user);
+
+    updateUserInterface();
+
+    await loadCollection();
+}
+
+
+// =========================================================
+// HANDLE LOGOUT
+// =========================================================
+
+function handleLoggedOutUser() {
+
+    currentUser = null;
+    collectedSprites = [];
+
+    updateUserInterface();
+}
+
+
+// =========================================================
+// USER INTERFACE
+// =========================================================
+
+function updateUserInterface() {
 
     if (currentUser) {
 
-        console.log(
-            "Eingeloggt:",
-            currentUser
-        );
-
-        loadCollectedSprites();
-
-    } else {
-
-        collectedSprites = [];
-
-    }
-
-
-    updateUserUI();
-
-    updateProgress();
-
-    renderSprites();
-
-}
-
-
-/* =========================================================
-   USER UI
-========================================================= */
-
-function updateUserUI() {
-
-    const loggedOut =
-        $("logged-out-view");
-
-    const loggedIn =
-        $("logged-in-view");
-
-    const warning =
-        $("auth-warning");
-
-
-    if (!currentUser) {
-
-        if (loggedOut) {
-
-            loggedOut.classList.remove(
-                "hidden"
-            );
-
+        if (loginBtn) {
+            loginBtn.style.display = "none";
         }
 
-        if (loggedIn) {
-
-            loggedIn.classList.add(
-                "hidden"
-            );
-
+        if (loggedInView) {
+            loggedInView.style.display = "flex";
         }
 
-        if (warning) {
-
-            warning.classList.remove(
-                "hidden"
-            );
-
+        if (authWarning) {
+            authWarning.style.display = "none";
         }
 
-        return;
+        const discordName =
+            currentUser.user_metadata?.full_name ||
+            currentUser.user_metadata?.name ||
+            currentUser.user_metadata?.preferred_username ||
+            currentUser.email?.split("@")[0] ||
+            "Discord User";
 
-    }
-
-
-    if (loggedOut) {
-
-        loggedOut.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (loggedIn) {
-
-        loggedIn.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    if (warning) {
-
-        warning.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    /*
-       Name
-    */
-
-    const userName =
-        $("user-name");
-
-
-    const metadata =
-        currentUser.user_metadata || {};
-
-
-    const discordName =
-        metadata.full_name ||
-        metadata.name ||
-        metadata.user_name ||
-        metadata.preferred_username ||
-        "Discord User";
-
-
-    if (userName) {
-
-        userName.textContent =
-            discordName;
-
-    }
-
-
-    /*
-       Avatar
-    */
-
-    const avatar =
-        $("user-avatar");
-
-
-    if (avatar) {
-
-        const avatarUrl =
-            metadata.avatar_url ||
-            metadata.picture ||
-            "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
-        avatar.src =
-            avatarUrl;
-
-    }
-
-}
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-async function logout() {
-
-    if (!supabaseClient) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient.auth.signOut();
-
-
-        if (error) {
-
-            console.error(
-                "Logout Fehler:",
-                error
-            );
-
-            return;
-
+        if (userName) {
+            userName.textContent = discordName;
         }
 
 
-        currentUser =
+        const avatar =
+            currentUser.user_metadata?.avatar_url ||
+            currentUser.user_metadata?.picture ||
             null;
 
-        collectedSprites =
-            [];
+        if (userAvatar) {
 
+            if (avatar) {
+                userAvatar.src = avatar;
+                userAvatar.style.display = "block";
+            } else {
+                userAvatar.style.display = "none";
+            }
+        }
 
-        updateUserUI();
-
-        updateProgress();
-
-        renderSprites();
-
-
-    } catch (error) {
-
-        console.error(
-            "Logout Exception:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD USER COLLECTION
-========================================================= */
-
-function loadCollectedSprites() {
-
-    if (!currentUser) {
-
-        collectedSprites = [];
-
-        return;
-
-    }
-
-
-    const metadata =
-        currentUser.user_metadata || {};
-
-
-    const saved =
-        metadata.collected_sprites;
-
-
-    if (Array.isArray(saved)) {
-
-        collectedSprites =
-            saved.map(
-                String
-            );
+        if (databaseStatus) {
+            databaseStatus.textContent = "Verbunden";
+        }
 
     } else {
 
-        collectedSprites =
-            [];
+        if (loginBtn) {
+            loginBtn.style.display = "";
+        }
 
+        if (loggedInView) {
+            loggedInView.style.display = "none";
+        }
+
+        if (authWarning) {
+            authWarning.style.display = "";
+        }
+
+        if (databaseStatus) {
+            databaseStatus.textContent = "Nicht angemeldet";
+        }
     }
 
-
-    console.log(
-        "Gesammelte Sprites:",
-        collectedSprites.length
-    );
-
+    updateProgress();
 }
 
 
-/* =========================================================
-   SAVE USER COLLECTION
-========================================================= */
+// =========================================================
+// AUTH ERROR
+// =========================================================
 
-async function saveCollectedSprites() {
+function showAuthError(message) {
+
+    console.error(message);
+
+    if (!authWarning) {
+        return;
+    }
+
+    authWarning.style.display = "block";
+
+    authWarning.innerHTML = `
+        <strong>Discord Login fehlgeschlagen</strong>
+        <br>
+        <span>${escapeHtml(message || "Unbekannter Fehler")}</span>
+    `;
+}
+
+
+// =========================================================
+// LOAD COLLECTION
+// =========================================================
+
+async function loadCollection() {
 
     if (!currentUser) {
-
-        return false;
-
+        collectedSprites = [];
+        updateProgress();
+        renderSprites();
+        return;
     }
-
-
-    if (!supabaseClient) {
-
-        return false;
-
-    }
-
 
     try {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.updateUser({
+        const metadata =
+            currentUser.user_metadata || {};
 
-                data: {
+        const savedCollection =
+            metadata.collected_sprites;
 
-                    collected_sprites:
-                        collectedSprites
+        if (Array.isArray(savedCollection)) {
 
-                }
+            collectedSprites = [...savedCollection];
 
-            });
+        } else {
 
-
-        if (error) {
-
-            console.error(
-                "Speichern fehlgeschlagen:",
-                error
-            );
-
-            return false;
-
+            collectedSprites = [];
         }
 
+        console.log(
+            "Loaded collection:",
+            collectedSprites.length
+        );
 
-        /*
-           Lokalen User aktualisieren
-        */
-
-        if (
-            data &&
-            data.user
-        ) {
-
-            currentUser =
-                data.user;
-
-        }
-
-
-        return true;
+        updateProgress();
+        renderSprites();
 
     } catch (error) {
 
         console.error(
-            "Speicher Exception:",
+            "Collection loading failed:",
             error
         );
 
-        return false;
+        collectedSprites = [];
 
+        updateProgress();
+        renderSprites();
     }
-
 }
 
 
-/* =========================================================
-   LOAD SPRITES
-========================================================= */
+// =========================================================
+// SAVE COLLECTION
+// =========================================================
 
-async function loadSprites(forceReload = false) {
+async function saveCollection() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    try {
+
+        const { data, error } =
+            await supabaseClient.auth.updateUser({
+                data: {
+                    collected_sprites: collectedSprites
+                }
+            });
+
+        if (error) {
+            console.error(
+                "Collection save error:",
+                error
+            );
+            return;
+        }
+
+        if (data?.user) {
+            currentUser = data.user;
+        }
+
+        console.log(
+            "Collection saved:",
+            collectedSprites.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Collection save failed:",
+            error
+        );
+    }
+}
+
+
+// =========================================================
+// LOAD SPRITES
+// =========================================================
+
+async function loadSprites() {
 
     showLoading();
 
-    hideError();
-
-
     try {
 
-        const separator =
-            SPRITES_DATA_URL.includes("?")
-                ? "&"
-                : "?";
-
-
-        const url =
-            forceReload
-                ? `${SPRITES_DATA_URL}${separator}t=${Date.now()}`
-                : SPRITES_DATA_URL;
-
-
-        console.log(
-            "Lade Sprite-Daten:",
-            url
-        );
-
-
         const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
+            await fetch(SPRITES_URL);
 
         if (!response.ok) {
-
             throw new Error(
-                `Sprite-Daten konnten nicht geladen werden. HTTP ${response.status}`
+                `HTTP ${response.status}`
             );
-
         }
 
+        const data = await response.json();
 
-        const rawData =
-            await response.json();
-
-
-        if (!Array.isArray(rawData)) {
-
+        if (!Array.isArray(data)) {
             throw new Error(
-                "Die Sprite-Daten haben ein ungültiges Format."
+                "Sprite-Daten haben kein gültiges Format."
             );
-
         }
 
+        sprites = data.map((sprite, index) => {
 
-        /*
-           Daten normalisieren
-        */
+            const spriteId =
+                sprite.spriteId ||
+                sprite.id ||
+                `sprite-${index}`;
 
-        sprites =
-            rawData
-                .filter(
-                    item =>
-                        item &&
-                        item.url
-                )
-                .map(
-                    item => {
+            const variant =
+                sprite.variant ||
+                "Default";
 
-                        return {
+            return {
 
-                            id:
-                                String(
-                                    item.spriteId ??
-                                    `${item.parent}-${item.variant}`
-                                ),
+                id: `${spriteId}-${variant}`,
 
-                            name:
-                                String(
-                                    item.parent ??
-                                    "Unknown Sprite"
-                                ),
+                originalId: spriteId,
 
-                            family:
-                                String(
-                                    item.parent ??
-                                    "Unknown"
-                                ),
+                name:
+                    sprite.name ||
+                    sprite.displayName ||
+                    spriteId,
 
-                            rarity:
-                                normalizeRarity(
-                                    item.rarity
-                                ),
+                family:
+                    sprite.parent ||
+                    sprite.family ||
+                    "Unbekannt",
 
-                            variant:
-                                String(
-                                    item.variant ??
-                                    "base"
-                                ),
+                rarity:
+                    sprite.rarity ||
+                    "Unbekannt",
 
-                            image:
-                                String(
-                                    item.url
-                                ),
+                variant,
 
-                            season:
-                                String(
-                                    item.season ??
-                                    ""
-                                )
+                image:
+                    sprite.url ||
+                    sprite.image ||
+                    "",
 
-                        };
-
-                    }
-                );
-
-
-        /*
-           Doppelte IDs entfernen
-        */
-
-        const unique =
-            new Map();
-
-
-        sprites.forEach(
-            sprite => {
-
-                /*
-                   Sprite ID + Variant,
-                   damit Varianten nicht
-                   überschrieben werden.
-                */
-
-                const uniqueId =
-                    `${sprite.id}-${sprite.variant}`;
-
-
-                sprite.id =
-                    uniqueId;
-
-
-                unique.set(
-                    uniqueId,
-                    sprite
-                );
-
-            }
-        );
-
-
-        sprites =
-            Array.from(
-                unique.values()
-            );
-
+                season:
+                    sprite.season ||
+                    null
+            };
+        });
 
         console.log(
-            `${sprites.length} Sprites geladen.`
+            `Loaded ${sprites.length} sprites`
         );
 
-
-        /*
-           Datenbank Status
-        */
-
-        const databaseStatus =
-            $("database-status");
-
-
-        if (databaseStatus) {
-
-            databaseStatus.textContent =
-                `${sprites.length.toLocaleString("de-DE")} Sprites`;
-
-        }
-
-
         populateFilters();
-
         populateFamilies();
+        updateFamilyCount();
+        updateVariantCount();
 
         hideLoading();
 
-        renderSprites();
-
         updateProgress();
-
-        updateVisibleCount();
-
+        renderSprites();
 
     } catch (error) {
 
         console.error(
-            "Sprite Ladefehler:",
+            "Sprite loading failed:",
             error
         );
 
-
         showError(
-            error.message ||
-            "Unbekannter Fehler beim Laden der Sprites."
+            "Die Sprite-Daten konnten nicht geladen werden."
         );
-
     }
-
 }
 
 
-/* =========================================================
-   RARITY NORMALIZE
-========================================================= */
-
-function normalizeRarity(rarity) {
-
-    if (!rarity) {
-
-        return "Special";
-
-    }
-
-
-    const value =
-        String(
-            rarity
-        ).toLowerCase();
-
-
-    switch (value) {
-
-        case "common":
-            return "Common";
-
-        case "uncommon":
-            return "Uncommon";
-
-        case "rare":
-            return "Rare";
-
-        case "epic":
-            return "Epic";
-
-        case "legendary":
-            return "Legendary";
-
-        case "mythic":
-            return "Mythic";
-
-        case "special":
-            return "Special";
-
-        default:
-            return (
-                value.charAt(0).toUpperCase() +
-                value.slice(1)
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-   FILTERS
-========================================================= */
+// =========================================================
+// FILTER SETUP
+// =========================================================
 
 function populateFilters() {
 
-    const raritySelect =
-        $("rarity-filter");
+    // -----------------------------
+    // RARITY
+    // -----------------------------
 
-    const variantSelect =
-        $("variant-filter");
-
-
-    if (raritySelect) {
+    if (rarityFilter) {
 
         const rarities =
-            [
-                ...new Set(
-                    sprites.map(
-                        sprite =>
-                            sprite.rarity
-                    )
-                )
-            ].sort();
+            [...new Set(
+                sprites
+                    .map(sprite => sprite.rarity)
+                    .filter(Boolean)
+            )]
+            .sort((a, b) =>
+                a.localeCompare(b)
+            );
 
+        rarityFilter.innerHTML = `
+            <option value="all">Alle Seltenheiten</option>
+        `;
 
-        raritySelect.innerHTML =
-            `<option value="all">Alle Seltenheiten</option>`;
+        rarities.forEach(rarity => {
 
+            const option =
+                document.createElement("option");
 
-        rarities.forEach(
-            rarity => {
+            option.value = rarity;
+            option.textContent = rarity;
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    rarity.toLowerCase();
-
-
-                option.textContent =
-                    rarity;
-
-
-                raritySelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
+            rarityFilter.appendChild(option);
+        });
     }
 
 
-    if (variantSelect) {
+    // -----------------------------
+    // VARIANTS
+    // -----------------------------
+
+    if (variantFilter) {
 
         const variants =
-            [
-                ...new Set(
-                    sprites.map(
-                        sprite =>
-                            sprite.variant
-                    )
-                )
-            ].sort();
+            [...new Set(
+                sprites
+                    .map(sprite => sprite.variant)
+                    .filter(Boolean)
+            )]
+            .sort((a, b) =>
+                a.localeCompare(b)
+            );
 
+        variantFilter.innerHTML = `
+            <option value="all">Alle Varianten</option>
+        `;
 
-        variantSelect.innerHTML =
-            `<option value="all">Alle Varianten</option>`;
+        variants.forEach(variant => {
 
+            const option =
+                document.createElement("option");
 
-        variants.forEach(
-            variant => {
+            option.value = variant;
+            option.textContent = variant;
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    variant;
-
-
-                option.textContent =
-                    formatVariantName(
-                        variant
-                    );
-
-
-                variantSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
+            variantFilter.appendChild(option);
+        });
     }
-
 }
 
 
-/* =========================================================
-   FAMILY FILTER
-========================================================= */
+// =========================================================
+// FAMILY NAVIGATION
+// =========================================================
 
 function populateFamilies() {
 
-    const familyList =
-        $("family-list");
-
-
     if (!familyList) {
-
         return;
-
     }
 
+    familyList.innerHTML = "";
 
-    const families =
-        [
-            ...new Set(
-                sprites.map(
-                    sprite =>
-                        sprite.family
-                )
-            )
-        ].sort(
-            (a, b) =>
-                a.localeCompare(
-                    b
-                )
-        );
-
-
-    familyList.innerHTML =
-        "";
-
-
-    /*
-       Alle
-    */
+    // -----------------------------
+    // ALL
+    // -----------------------------
 
     const allButton =
         createFamilyButton(
@@ -1070,215 +612,187 @@ function populateFamilies() {
             "Alle"
         );
 
+    allButton.classList.add("active");
 
-    allButton.classList.add(
-        "active"
-    );
-
-
-    familyList.appendChild(
-        allButton
-    );
+    familyList.appendChild(allButton);
 
 
-    families.forEach(
-        family => {
+    // -----------------------------
+    // FAMILIES
+    // -----------------------------
 
-            const button =
-                createFamilyButton(
-                    family,
-                    family
-                );
-
-
-            familyList.appendChild(
-                button
-            );
-
-        }
-    );
-
-
-    const familyCount =
-        $("family-count");
-
-
-    if (familyCount) {
-
-        familyCount.textContent =
-            `${families.length} Familien`;
-
-    }
-
-}
-
-
-/* =========================================================
-   FAMILY BUTTON
-========================================================= */
-
-function createFamilyButton(
-    value,
-    label
-) {
-
-    const button =
-        document.createElement(
-            "button"
+    const families =
+        [...new Set(
+            sprites
+                .map(sprite => sprite.family)
+                .filter(Boolean)
+        )]
+        .sort((a, b) =>
+            a.localeCompare(b)
         );
 
+    families.forEach(family => {
 
-    button.type =
-        "button";
-
-
-    button.className =
-        "family-btn";
-
-
-    button.dataset.family =
-        value;
-
-
-    button.textContent =
-        label;
-
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            document
-                .querySelectorAll(
-                    ".family-btn"
-                )
-                .forEach(
-                    btn =>
-                        btn.classList.remove(
-                            "active"
-                        )
-                );
-
-
-            button.classList.add(
-                "active"
-            );
-
-
-            currentFamily =
-                value;
-
-
-            renderSprites();
-
-        }
-    );
-
-
-    return button;
-
+        familyList.appendChild(
+            createFamilyButton(
+                family,
+                family
+            )
+        );
+    });
 }
 
 
-/* =========================================================
-   CONTROLS
-========================================================= */
+// =========================================================
+// CREATE FAMILY BUTTON
+// =========================================================
+
+function createFamilyButton(value, label) {
+
+    const button =
+        document.createElement("button");
+
+    button.className = "family-btn";
+
+    button.dataset.family = value;
+
+    button.textContent = label;
+
+    button.addEventListener("click", () => {
+
+        currentFamily = value;
+
+        document
+            .querySelectorAll(".family-btn")
+            .forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+        button.classList.add("active");
+
+        renderSprites();
+    });
+
+    return button;
+}
+
+
+// =========================================================
+// CONTROLS
+// =========================================================
 
 function setupControls() {
 
-    const search =
-        $("search-input");
+    // -----------------------------
+    // SEARCH
+    // -----------------------------
 
+    if (searchInput) {
 
-    if (search) {
-
-        search.addEventListener(
+        searchInput.addEventListener(
             "input",
-            event => {
+            () => {
 
                 currentSearch =
-                    event.target.value
+                    searchInput.value
                         .trim()
                         .toLowerCase();
 
-
                 renderSprites();
-
             }
         );
-
     }
 
 
-    const rarity =
-        $("rarity-filter");
+    // -----------------------------
+    // RARITY
+    // -----------------------------
 
+    if (rarityFilter) {
 
-    if (rarity) {
-
-        rarity.addEventListener(
+        rarityFilter.addEventListener(
             "change",
-            event => {
+            () => {
 
                 currentRarity =
-                    event.target.value;
-
+                    rarityFilter.value;
 
                 renderSprites();
-
             }
         );
-
     }
 
 
-    const variant =
-        $("variant-filter");
+    // -----------------------------
+    // VARIANT
+    // -----------------------------
 
+    if (variantFilter) {
 
-    if (variant) {
-
-        variant.addEventListener(
+        variantFilter.addEventListener(
             "change",
-            event => {
+            () => {
 
                 currentVariant =
-                    event.target.value;
-
+                    variantFilter.value;
 
                 renderSprites();
-
             }
         );
-
     }
 
 
-    const sort =
-        $("sort-filter");
+    // -----------------------------
+    // SORT
+    // -----------------------------
 
+    if (sortFilter) {
 
-    if (sort) {
-
-        sort.addEventListener(
+        sortFilter.addEventListener(
             "change",
-            event => {
+            () => {
 
                 currentSort =
-                    event.target.value;
-
+                    sortFilter.value;
 
                 renderSprites();
-
             }
         );
-
     }
 
 
-    /*
-       "/" öffnet Suche
-    */
+    // =====================================================
+    // COLLECTION FILTER
+    // =====================================================
+
+    document
+        .querySelectorAll(".filter-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    currentCollectionFilter =
+                        button.dataset.filter || "all";
+
+                    document
+                        .querySelectorAll(".filter-btn")
+                        .forEach(btn => {
+                            btn.classList.remove("active");
+                        });
+
+                    button.classList.add("active");
+
+                    renderSprites();
+                }
+            );
+        });
+
+
+    // -----------------------------
+    // KEYBOARD SEARCH
+    // -----------------------------
 
     document.addEventListener(
         "keydown",
@@ -1286,120 +800,144 @@ function setupControls() {
 
             if (
                 event.key === "/" &&
-                document.activeElement !== search
+                document.activeElement !== searchInput
             ) {
 
                 event.preventDefault();
 
-                if (search) {
-
-                    search.focus();
-
+                if (searchInput) {
+                    searchInput.focus();
                 }
-
             }
 
 
             if (
                 event.key === "Escape" &&
-                search
+                document.activeElement === searchInput
             ) {
 
-                search.value = "";
+                searchInput.value = "";
 
-                currentSearch =
-                    "";
+                currentSearch = "";
+
+                searchInput.blur();
 
                 renderSprites();
-
-                search.blur();
-
             }
-
         }
     );
-
 }
 
 
-/* =========================================================
-   GET VISIBLE SPRITES
-========================================================= */
+// =========================================================
+// GET VISIBLE SPRITES
+// =========================================================
 
 function getVisibleSprites() {
 
-    let result =
-        sprites.filter(
-            sprite => {
-
-                /*
-                   Suche
-                */
-
-                const searchText =
-                    `${sprite.name} ${sprite.family} ${sprite.variant}`
-                        .toLowerCase();
+    let result = [...sprites];
 
 
-                const matchesSearch =
-                    !currentSearch ||
-                    searchText.includes(
-                        currentSearch
-                    );
+    // =====================================================
+    // COLLECTION FILTER
+    // =====================================================
 
+    if (currentCollectionFilter === "owned") {
 
-                /*
-                   Familie
-                */
-
-                const matchesFamily =
-                    currentFamily === "all" ||
-                    sprite.family === currentFamily;
-
-
-                /*
-                   Rarity
-                */
-
-                const matchesRarity =
-                    currentRarity === "all" ||
-                    sprite.rarity.toLowerCase() ===
-                        currentRarity;
-
-
-                /*
-                   Variant
-                */
-
-                const matchesVariant =
-                    currentVariant === "all" ||
-                    sprite.variant === currentVariant;
-
-
-                return (
-                    matchesSearch &&
-                    matchesFamily &&
-                    matchesRarity &&
-                    matchesVariant
-                );
-
-            }
+        result = result.filter(sprite =>
+            collectedSprites.includes(sprite.id)
         );
 
+    } else if (currentCollectionFilter === "missing") {
 
-    /*
-       Sortierung
-    */
+        result = result.filter(sprite =>
+            !collectedSprites.includes(sprite.id)
+        );
+    }
+
+
+    // =====================================================
+    // SEARCH
+    // =====================================================
+
+    if (currentSearch) {
+
+        result = result.filter(sprite => {
+
+            const searchableText = [
+                sprite.name,
+                sprite.family,
+                sprite.rarity,
+                sprite.variant,
+                sprite.originalId
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            return searchableText.includes(
+                currentSearch
+            );
+        });
+    }
+
+
+    // =====================================================
+    // FAMILY
+    // =====================================================
+
+    if (currentFamily !== "all") {
+
+        result = result.filter(
+            sprite =>
+                sprite.family === currentFamily
+        );
+    }
+
+
+    // =====================================================
+    // RARITY
+    // =====================================================
+
+    if (currentRarity !== "all") {
+
+        result = result.filter(
+            sprite =>
+                sprite.rarity === currentRarity
+        );
+    }
+
+
+    // =====================================================
+    // VARIANT
+    // =====================================================
+
+    if (currentVariant !== "all") {
+
+        result = result.filter(
+            sprite =>
+                sprite.variant === currentVariant
+        );
+    }
+
+
+    // =====================================================
+    // SORT
+    // =====================================================
 
     switch (currentSort) {
 
         case "name":
 
-            result.sort(
-                (a, b) =>
-                    a.name.localeCompare(
-                        b.name
-                    )
+            result.sort((a, b) =>
+                a.name.localeCompare(
+                    b.name,
+                    undefined,
+                    {
+                        numeric: true,
+                        sensitivity: "base"
+                    }
+                )
             );
 
             break;
@@ -1407,14 +945,14 @@ function getVisibleSprites() {
 
         case "rarity":
 
-            result.sort(
-                (a, b) =>
-                    rarityWeight(
-                        b.rarity
-                    ) -
-                    rarityWeight(
-                        a.rarity
-                    )
+            result.sort((a, b) =>
+                a.rarity.localeCompare(
+                    b.rarity,
+                    undefined,
+                    {
+                        sensitivity: "base"
+                    }
+                )
             );
 
             break;
@@ -1422,11 +960,14 @@ function getVisibleSprites() {
 
         case "variant":
 
-            result.sort(
-                (a, b) =>
-                    a.variant.localeCompare(
-                        b.variant
-                    )
+            result.sort((a, b) =>
+                a.variant.localeCompare(
+                    b.variant,
+                    undefined,
+                    {
+                        sensitivity: "base"
+                    }
+                )
             );
 
             break;
@@ -1434,263 +975,129 @@ function getVisibleSprites() {
 
         case "owned":
 
-            result.sort(
-                (a, b) => {
+            result.sort((a, b) => {
 
-                    const aOwned =
-                        collectedSprites.includes(
-                            a.id
-                        );
+                const aOwned =
+                    collectedSprites.includes(a.id);
 
-                    const bOwned =
-                        collectedSprites.includes(
-                            b.id
-                        );
+                const bOwned =
+                    collectedSprites.includes(b.id);
 
-
-                    return (
-                        Number(bOwned) -
-                        Number(aOwned)
-                    );
-
-                }
-            );
+                return (
+                    Number(bOwned) -
+                    Number(aOwned)
+                );
+            });
 
             break;
 
 
         default:
-
             break;
-
     }
 
 
     return result;
-
 }
 
 
-/* =========================================================
-   RARITY WEIGHT
-========================================================= */
-
-function rarityWeight(rarity) {
-
-    const weights = {
-
-        "Common": 1,
-
-        "Uncommon": 2,
-
-        "Rare": 3,
-
-        "Epic": 4,
-
-        "Legendary": 5,
-
-        "Mythic": 6,
-
-        "Special": 7
-
-    };
-
-
-    return (
-        weights[rarity] ||
-        0
-    );
-
-}
-
-
-/* =========================================================
-   RENDER SPRITES
-========================================================= */
+// =========================================================
+// RENDER SPRITES
+// =========================================================
 
 function renderSprites() {
 
-    const container =
-        $("sprites-container");
-
-
-    if (!container) {
-
+    if (!spritesContainer) {
         return;
-
     }
-
 
     const visibleSprites =
         getVisibleSprites();
 
-
-    container.innerHTML =
-        "";
+    spritesContainer.innerHTML = "";
 
 
-    updateVisibleCount(
-        visibleSprites.length
-    );
+    // -----------------------------
+    // NOTHING FOUND
+    // -----------------------------
 
+    if (visibleSprites.length === 0) {
 
-    if (
-        visibleSprites.length === 0
-    ) {
-
-        container.innerHTML = `
-
+        spritesContainer.innerHTML = `
             <div class="empty-state">
+                <div class="empty-icon">🔎</div>
 
-                <div style="font-size:42px;">
-                    🔎
-                </div>
-
-                <h3>
-                    Keine Sprites gefunden
-                </h3>
+                <h3>Keine Sprites gefunden</h3>
 
                 <p>
-                    Ändere deine Suche oder Filter.
+                    Für deine aktuellen Filter
+                    wurden keine Sprites gefunden.
                 </p>
-
             </div>
-
         `;
 
         return;
-
     }
+
+
 
 
     const fragment =
         document.createDocumentFragment();
 
+    visibleSprites.forEach(sprite => {
 
-    visibleSprites.forEach(
-        sprite => {
+        fragment.appendChild(
+            createSpriteCard(sprite)
+        );
+    });
 
-            const card =
-                createSpriteCard(
-                    sprite
-                );
-
-
-            fragment.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
+    spritesContainer.appendChild(
         fragment
     );
-
 }
 
 
-/* =========================================================
-   SPRITE CARD
-========================================================= */
 
-function createSpriteCard(
-    sprite
-) {
+
+function createSpriteCard(sprite) {
 
     const card =
-        document.createElement(
-            "article"
-        );
+        document.createElement("article");
+
+    card.className = "sprite-card";
+
+    const isCollected =
+        collectedSprites.includes(sprite.id);
+
+    if (isCollected) {
+        card.classList.add("collected");
+    }
 
 
-    const owned =
-        collectedSprites.includes(
-            sprite.id
-        );
+    // -----------------------------
+    // IMAGE
+    // -----------------------------
+
+    const imageWrapper =
+        document.createElement("div");
+
+    imageWrapper.className =
+        "sprite-image";
 
 
-    card.className =
-        "sprite-card" +
-        (
-            owned
-                ? " owned"
-                : ""
-        );
+    if (sprite.image) {
 
+        const image =
+            document.createElement("img");
 
-    const rarityClass =
-        `rarity-${sprite.rarity.toLowerCase()}`;
+        image.src = sprite.image;
 
+        image.alt = sprite.name;
 
-    card.innerHTML = `
+        image.loading = "lazy";
 
-        <div class="owned-badge">
-            ✓
-        </div>
-
-        <div class="sprite-image-container">
-
-            <img
-                class="sprite-image"
-                src="${escapeAttribute(sprite.image)}"
-                alt="${escapeAttribute(sprite.name)}"
-                loading="lazy"
-            >
-
-        </div>
-
-        <div class="sprite-card-content">
-
-            <div class="sprite-meta">
-
-                <span class="sprite-rarity ${rarityClass}">
-                    ${escapeHtml(sprite.rarity)}
-                </span>
-
-                <span class="sprite-variant">
-                    ${escapeHtml(formatVariantName(sprite.variant))}
-                </span>
-
-            </div>
-
-            <h3 class="sprite-name">
-                ${escapeHtml(sprite.name)}
-            </h3>
-
-            <p class="sprite-description">
-                ${escapeHtml(sprite.season || "Fortnite Sprite")}
-            </p>
-
-            <button
-                type="button"
-                class="sprite-status"
-                data-sprite-id="${escapeAttribute(sprite.id)}"
-            >
-                ${
-                    owned
-                        ? "✓ Gesammelt"
-                        : "Als gesammelt markieren"
-                }
-            </button>
-
-        </div>
-
-    `;
-
-
-    /*
-       Bild Fehler
-    */
-
-    const image =
-        card.querySelector(
-            ".sprite-image"
-        );
-
-
-    if (image) {
+        image.decoding = "async";
 
         image.addEventListener(
             "error",
@@ -1699,495 +1106,422 @@ function createSpriteCard(
                 image.style.display =
                     "none";
 
-
-                const imageContainer =
-                    image.parentElement;
-
-
-                if (imageContainer) {
-
-                    imageContainer.classList.add(
-                        "image-error"
-                    );
-
-                    imageContainer.insertAdjacentHTML(
-                        "beforeend",
-                        `
-                            <div class="image-fallback">
-                                <span>?</span>
-                                <small>Bild nicht verfügbar</small>
-                            </div>
-                        `
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /*
-       Sammeln Button
-    */
-
-    const button =
-        card.querySelector(
-            ".sprite-status"
-        );
-
-
-    if (button) {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                toggleSprite(
-                    sprite.id
+                imageWrapper.classList.add(
+                    "image-error"
                 );
 
+                if (
+                    !imageWrapper.querySelector(
+                        ".image-error-text"
+                    )
+                ) {
+
+                    const errorText =
+                        document.createElement(
+                            "span"
+                        );
+
+                    errorText.className =
+                        "image-error-text";
+
+                    errorText.textContent =
+                        "Bild nicht verfügbar";
+
+                    imageWrapper.appendChild(
+                        errorText
+                    );
+                }
             }
         );
 
+        imageWrapper.appendChild(
+            image
+        );
+
+    } else {
+
+        imageWrapper.classList.add(
+            "image-error"
+        );
+
+        imageWrapper.innerHTML = `
+            <span class="image-error-text">
+                Kein Bild
+            </span>
+        `;
     }
+
+
+    // -----------------------------
+    // COLLECTION BUTTON
+    // -----------------------------
+
+    const collectButton =
+        document.createElement("button");
+
+    collectButton.className =
+        "collect-button";
+
+    collectButton.type = "button";
+
+    collectButton.title =
+        isCollected
+            ? "Aus Sammlung entfernen"
+            : "Zur Sammlung hinzufügen";
+
+    collectButton.innerHTML =
+        isCollected
+            ? "✓"
+            : "+";
+
+
+    collectButton.addEventListener(
+        "click",
+        async event => {
+
+            event.stopPropagation();
+
+            await toggleSprite(
+                sprite.id
+            );
+        }
+    );
+
+
+    // -----------------------------
+    // INFO
+    // -----------------------------
+
+    const info =
+        document.createElement("div");
+
+    info.className =
+        "sprite-info";
+
+
+    const name =
+        document.createElement("h3");
+
+    name.className =
+        "sprite-name";
+
+    name.textContent =
+        sprite.name;
+
+
+    const meta =
+        document.createElement("div");
+
+    meta.className =
+        "sprite-meta";
+
+
+    const family =
+        document.createElement("span");
+
+    family.className =
+        "sprite-family";
+
+    family.textContent =
+        sprite.family;
+
+
+    const rarity =
+        document.createElement("span");
+
+    rarity.className =
+        "sprite-rarity";
+
+    rarity.textContent =
+        sprite.rarity;
+
+
+    meta.appendChild(family);
+    meta.appendChild(rarity);
+
+
+    // -----------------------------
+    // VARIANT
+    // -----------------------------
+
+    if (
+        sprite.variant &&
+        sprite.variant !== "Default"
+    ) {
+
+        const variant =
+            document.createElement("span");
+
+        variant.className =
+            "sprite-variant";
+
+        variant.textContent =
+            sprite.variant;
+
+        meta.appendChild(
+            variant
+        );
+    }
+
+
+    // -----------------------------
+    // SEASON
+    // -----------------------------
+
+    if (sprite.season) {
+
+        const season =
+            document.createElement("div");
+
+        season.className =
+            "sprite-season";
+
+        season.textContent =
+            `Season ${sprite.season}`;
+
+        info.appendChild(
+            season
+        );
+    }
+
+
+    info.appendChild(name);
+    info.appendChild(meta);
+
+
+    // -----------------------------
+    // CARD
+    // -----------------------------
+
+    card.appendChild(
+        imageWrapper
+    );
+
+    card.appendChild(
+        collectButton
+    );
+
+    card.appendChild(
+        info
+    );
+
+
+    // -----------------------------
+    // CLICK CARD
+    // -----------------------------
+
+    card.addEventListener(
+        "click",
+        async () => {
+
+            await toggleSprite(
+                sprite.id
+            );
+        }
+    );
 
 
     return card;
-
 }
 
 
-/* =========================================================
-   TOGGLE SPRITE
-========================================================= */
 
-async function toggleSprite(
-    spriteId
-) {
+async function toggleSprite(spriteId) {
 
     if (!currentUser) {
 
-        alert(
+        showAuthError(
             "Bitte melde dich zuerst mit Discord an."
         );
 
         return;
-
     }
-
-
-    const id =
-        String(
-            spriteId
-        );
 
 
     const index =
         collectedSprites.indexOf(
-            id
+            spriteId
         );
 
 
-    if (index >= 0) {
+    if (index === -1) {
+
+        collectedSprites.push(
+            spriteId
+        );
+
+    } else {
 
         collectedSprites.splice(
             index,
             1
         );
-
-    } else {
-
-        collectedSprites.push(
-            id
-        );
-
     }
 
 
+    // Sofort UI aktualisieren
     updateProgress();
-
     renderSprites();
 
 
-    /*
-       Speichern
-    */
-
-    const success =
-        await saveCollectedSprites();
-
-
-    if (!success) {
-
-        /*
-           Bei Fehler UI zurücksetzen
-        */
-
-        const indexAfter =
-            collectedSprites.indexOf(
-                id
-            );
-
-
-        if (index >= 0) {
-
-            if (indexAfter === -1) {
-
-                collectedSprites.push(
-                    id
-                );
-
-            }
-
-        } else {
-
-            if (indexAfter >= 0) {
-
-                collectedSprites.splice(
-                    indexAfter,
-                    1
-                );
-
-            }
-
-        }
-
-
-        updateProgress();
-
-        renderSprites();
-
-
-        alert(
-            "Die Sammlung konnte nicht gespeichert werden."
-        );
-
-    }
-
+    // Speichern
+    await saveCollection();
 }
 
 
-/* =========================================================
-   PROGRESS
-========================================================= */
 
 function updateProgress() {
 
     const total =
         sprites.length;
 
-
     const collected =
-        sprites.filter(
-            sprite =>
-                collectedSprites.includes(
-                    sprite.id
-                )
+        sprites.filter(sprite =>
+            collectedSprites.includes(
+                sprite.id
+            )
         ).length;
 
 
     const percentage =
         total > 0
             ? Math.round(
-                (
-                    collected /
-                    total
-                ) *
-                100
+                (collected / total) * 100
             )
             : 0;
 
 
-    const collectedCount =
-        $("collected-count");
-
-
     if (collectedCount) {
-
         collectedCount.textContent =
-            collected.toLocaleString(
-                "de-DE"
-            );
-
+            collected;
     }
-
-
-    const totalCount =
-        $("total-count");
-
 
     if (totalCount) {
-
         totalCount.textContent =
-            total.toLocaleString(
-                "de-DE"
-            );
-
+            total;
     }
-
-
-    const progressNumber =
-        $("progress-number");
-
 
     if (progressNumber) {
-
         progressNumber.textContent =
             `${percentage}%`;
-
     }
 
+    if (progressBarFill) {
 
-    const progressBar =
-        $("progress-bar-fill");
-
-
-    if (progressBar) {
-
-        progressBar.style.width =
+        progressBarFill.style.width =
             `${percentage}%`;
-
     }
 
+
+    updateFamilyCount();
+    updateVariantCount();
 }
 
 
-/* =========================================================
-   VISIBLE COUNT
-========================================================= */
 
-function updateVisibleCount(
-    count = null
-) {
+function updateFamilyCount() {
 
-    const visibleCount =
-        $("visible-count");
-
-
-    if (!visibleCount) {
-
+    if (!familyCount) {
         return;
-
     }
 
+    const families =
+        new Set(
+            sprites.map(
+                sprite => sprite.family
+            )
+        );
 
-    const amount =
-        count === null
-            ? sprites.length
-            : count;
-
-
-    visibleCount.textContent =
-        `${amount.toLocaleString("de-DE")} Ergebnisse`;
-
+    familyCount.textContent =
+        families.size;
 }
 
 
-/* =========================================================
-   VARIANT NAME
-========================================================= */
 
-function formatVariantName(
-    variant
-) {
+function updateVariantCount() {
 
-    if (!variant) {
-
-        return "Base";
-
+    if (!variantCount) {
+        return;
     }
 
-
-    const text =
-        String(
-            variant
-        )
-        .replace(
-            /[-_]/g,
-            " "
+    const variants =
+        new Set(
+            sprites
+                .map(
+                    sprite => sprite.variant
+                )
+                .filter(Boolean)
         );
 
-
-    return (
-        text.charAt(0).toUpperCase() +
-        text.slice(1)
-    );
-
+    variantCount.textContent =
+        variants.size;
 }
 
 
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
 
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   ESCAPE ATTRIBUTE
-========================================================= */
-
-function escapeAttribute(
-    value
-) {
-
-    return escapeHtml(
-        value
-    );
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
 
 function showLoading() {
 
-    const loading =
-        $("loading-state");
-
-    const container =
-        $("sprites-container");
-
-
-    if (loading) {
-
-        loading.classList.remove(
-            "hidden"
-        );
-
+    if (loadingState) {
+        loadingState.style.display = "";
     }
 
-
-    if (container) {
-
-        container.innerHTML =
-            "";
-
+    if (errorState) {
+        errorState.style.display = "none";
     }
 
+    if (spritesContainer) {
+        spritesContainer.style.display = "none";
+    }
 }
 
-
-/* =========================================================
-   HIDE LOADING
-========================================================= */
 
 function hideLoading() {
 
-    const loading =
-        $("loading-state");
-
-
-    if (loading) {
-
-        loading.classList.add(
-            "hidden"
-        );
-
+    if (loadingState) {
+        loadingState.style.display = "none";
     }
 
+    if (errorState) {
+        errorState.style.display = "none";
+    }
+
+    if (spritesContainer) {
+        spritesContainer.style.display = "";
+    }
 }
 
 
-/* =========================================================
-   SHOW ERROR
-========================================================= */
-
-function showError(
-    message
-) {
-
-    hideLoading();
 
 
-    const errorState =
-        $("error-state");
+function showError(message) {
 
-
-    const errorMessage =
-        $("error-message");
-
-
-    if (errorState) {
-
-        errorState.classList.remove(
-            "hidden"
-        );
-
+    if (loadingState) {
+        loadingState.style.display = "none";
     }
 
+    if (spritesContainer) {
+        spritesContainer.style.display = "none";
+    }
+
+    if (errorState) {
+        errorState.style.display = "";
+    }
 
     if (errorMessage) {
-
         errorMessage.textContent =
             message;
-
     }
-
 }
 
 
-/* =========================================================
-   HIDE ERROR
-========================================================= */
 
-function hideError() {
+function escapeHtml(value) {
 
-    const errorState =
-        $("error-state");
-
-
-    if (errorState) {
-
-        errorState.classList.add(
-            "hidden"
-        );
-
-    }
-
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
-
-
-window.loginWithDiscord =
-    loginWithDiscord;
-
-window.logout =
-    logout;
-
-window.loadSprites =
-    loadSprites;
-
-window.toggleSprite =
-    toggleSprite;
