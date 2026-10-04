@@ -2,12 +2,9 @@ const CLIENT_ID =
     "1556295412757823558";
 
 const REDIRECT_URI =
-    "https://tommmyshelby.github.io/Fortnite/";
+    "https://ykbqnxqlbttqzaerqgnb.supabase.co/auth/v1/callback";
 
 
-/* =========================================
-   SPRITE DATEN
-========================================= */
 
 const SPRITES_DATA = [
 
