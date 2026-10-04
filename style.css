@@ -1,957 +1,1245 @@
-const CLIENT_ID =
-    "1556295412757823558";
+:root {
 
-const REDIRECT_URI =
-    "https://tommmyshelby.github.io/Fortnite/";
+    --background: #070910;
+    --background-secondary: #0d101b;
 
+    --card: #121624;
+    --card-hover: #181d2d;
 
-/* =========================================
-   SPRITE DATEN
-========================================= */
+    --border: rgba(255,255,255,0.08);
 
-const SPRITES_DATA = [
+    --purple: #7289da;
+    --purple-light: #8d9cff;
 
-    {
-        id: "bush",
-        name: "Bush Sprite",
-        rarity: "Rare",
-        description:
-            "Erzeugt nach einiger Zeit einen Busch um dich.",
-        image: "assets/sprites/bush.png"
-    },
+    --pink: #ff3bd4;
 
-    {
-        id: "adventure",
-        name: "Adventure Sprite",
-        rarity: "Rare",
-        description:
-            "Verbessert beim Leveln zufällig einen Gegenstand in deinem Inventar.",
-        image: "assets/sprites/adventure.png"
-    },
+    --green: #2ecc71;
 
-    {
-        id: "jonesy",
-        name: "Jonesy Sprite",
-        rarity: "Rare",
-        description:
-            "Stellt nach erlittenem Schaden Gesundheit oder Schild wieder her.",
-        image: "assets/sprites/jonesy.png"
-    },
+    --yellow: #ffcc00;
 
-    {
-        id: "8-bit",
-        name: "8-Bit Sprite",
-        rarity: "Rare",
-        description:
-            "Bringt eine 8-Bit-Schrotflinte in deine erste Truhe.",
-        image: "assets/sprites/8-bit.png"
-    },
+    --text: #ffffff;
+    --muted: #8f96ab;
 
-    {
-        id: "sonic",
-        name: "Sonic Sprite",
-        rarity: "Epic",
-        description:
-            "Erhöht deine Sprintgeschwindigkeit.",
-        image: "assets/sprites/sonic.png"
-    },
-
-    {
-        id: "tails",
-        name: "Tails Sprite",
-        rarity: "Epic",
-        description:
-            "Ermöglicht dir, in der Luft zu schweben.",
-        image: "assets/sprites/tails.png"
-    },
-
-    {
-        id: "shadow",
-        name: "Shadow Sprite",
-        rarity: "Epic",
-        description:
-            "Lädt Waffen automatisch nach, auch wenn sie nicht ausgerüstet sind.",
-        image: "assets/sprites/shadow.png"
-    },
-
-    {
-        id: "killswitch",
-        name: "Killswitch Sprite",
-        rarity: "Epic",
-        description:
-            "Aktiviert Hangtime mit verbesserter Genauigkeit.",
-        image: "assets/sprites/killswitch.png"
-    },
-
-    {
-        id: "storm-scout",
-        name: "Storm Scout Sprite",
-        rarity: "Epic",
-        description:
-            "Erzeugt Overdrive nach ausreichend Sturmschaden.",
-        image: "assets/sprites/storm-scout.png"
-    },
-
-    {
-        id: "pond",
-        name: "Pond Sprite",
-        rarity: "Epic",
-        description:
-            "Ermöglicht nach der Landung einen stärkeren Sprung.",
-        image: "assets/sprites/pond.png"
-    },
-
-    {
-        id: "blinky",
-        name: "Blinky Sprite",
-        rarity: "Epic",
-        description:
-            "Kann dich nach erlittenem Schaden tarnen.",
-        image: "assets/sprites/blinky.png"
-    },
-
-    {
-        id: "spooky-dash",
-        name: "Spooky Dash Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht eine besondere Phasen-Dash-Fähigkeit.",
-        image: "assets/sprites/spooky-dash.png"
-    },
-
-    {
-        id: "vampire",
-        name: "Vampire Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht einen Lebensraub-Effekt bei Schaden.",
-        image: "assets/sprites/vampire.png"
-    },
-
-    {
-        id: "the-deer",
-        name: "The Deer Sprite",
-        rarity: "Epic",
-        description:
-            "Verstärkt deinen Nahkampfschaden.",
-        image: "assets/sprites/deer.png"
-    },
-
-    {
-        id: "jackrabbit",
-        name: "Jackrabbit Sprite",
-        rarity: "Legendary",
-        description:
-            "Ermöglicht einen zusätzlichen Sprung in der Luft.",
-        image: "assets/sprites/jackrabbit.png"
-    },
-
-    {
-        id: "x-ray",
-        name: "X-Ray Sprite",
-        rarity: "Legendary",
-        description:
-            "Markiert regelmäßig Gegner in deiner Umgebung.",
-        image: "assets/sprites/x-ray.png"
-    },
-
-    {
-        id: "mega-man",
-        name: "Mega Man Sprite",
-        rarity: "Rare",
-        description:
-            "Verändert deine Bewegung beim Rutschen und Schwimmen.",
-        image: "assets/sprites/mega-man.png"
-    },
-
-    {
-        id: "overshield",
-        name: "Overshield Sprite",
-        rarity: "Legendary",
-        description:
-            "Verleiht dir einen zusätzlichen Overshield.",
-        image: "assets/sprites/overshield.png"
-    },
-
-    {
-        id: "onigiri",
-        name: "Onigiri Sprite",
-        rarity: "Epic",
-        description:
-            "Aktiviert nach dem Konsumieren eines Gegenstands Overdrive.",
-        image: "assets/sprites/onigiri.png"
-    },
-
-    {
-        id: "crash",
-        name: "Crash Sprite",
-        rarity: "Epic",
-        description:
-            "Verleiht eine besondere Wirbelwind-Fähigkeit.",
-        image: "assets/sprites/crash.png"
-    },
-
-    {
-        id: "dumpster-dive",
-        name: "Dumpster Dive Sprite",
-        rarity: "Rare",
-        description:
-            "Kann Nahrung aus Verstecken erhalten.",
-        image: "assets/sprites/dumpster-dive.png"
-    },
-
-    {
-        id: "klombo",
-        name: "Klombo Sprite",
-        rarity: "Mythic",
-        description:
-            "Kann dir beim Leveln zufällige Gegenstände geben.",
-        image: "assets/sprites/klombo.png"
-    },
-
-    {
-        id: "crown",
-        name: "Crown Sprite",
-        rarity: "Mythic",
-        description:
-            "Verleiht zusätzliche Crown Wins nach einem Victory Royale.",
-        image: "assets/sprites/crown.png"
-    },
-
-    {
-        id: "morgana",
-        name: "Morgana Sprite",
-        rarity: "Epic",
-        description:
-            "Verbessert die Wirkung von Heilgegenständen.",
-        image: "assets/sprites/morgana.png"
-    },
-
-    {
-        id: "birthday",
-        name: "Birthday Sprite",
-        rarity: "Rare",
-        description:
-            "Besonderer Geburtstags-Sprite.",
-        image: "assets/sprites/birthday.png"
-    }
-
-];
+}
 
 
-/* =========================================
-   VARIABLEN
-========================================= */
+* {
 
-let currentUser = null;
+    box-sizing: border-box;
 
-let collectedSprites = [];
+    margin: 0;
+    padding: 0;
 
-let currentFilter = "all";
-
-let searchText = "";
+}
 
 
-/* =========================================
-   START
-========================================= */
+body {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+    min-height: 100vh;
 
-        initAuth();
+    color: var(--text);
 
-        setupControls();
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
 
-        renderSprites();
+    background:
 
-        updateProgress();
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(114,137,218,0.25),
+            transparent 40%
+        ),
 
-    }
-);
+        radial-gradient(
+            circle at 100% 50%,
+            rgba(255,59,212,0.08),
+            transparent 35%
+        ),
+
+        var(--background);
+
+}
 
 
-/* =========================================
-   DISCORD LOGIN
-========================================= */
+/* =========================
+   NAVBAR
+========================= */
 
-function initAuth() {
+.navbar {
 
-    const fragment =
-        new URLSearchParams(
-            window.location.hash.slice(1)
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 16px 28px;
+
+    background:
+        rgba(7,9,16,0.85);
+
+    backdrop-filter: blur(18px);
+
+    border-bottom:
+        1px solid var(--border);
+
+}
+
+
+.logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    font-weight: 900;
+
+}
+
+
+.logo-icon {
+
+    width: 40px;
+    height: 40px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--purple),
+            #5865f2
         );
 
-    const accessToken =
-        fragment.get(
-            "access_token"
+    box-shadow:
+        0 0 25px
+        rgba(114,137,218,0.35);
+
+}
+
+
+.logo-text {
+
+    font-size: 18px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.logo-text span {
+
+    color: var(--yellow);
+
+}
+
+
+/* =========================
+   DISCORD
+========================= */
+
+.discord-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 11px 17px;
+
+    color: white;
+
+    background: #5865f2;
+
+    border: none;
+
+    border-radius: 9px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+}
+
+
+.discord-btn:hover {
+
+    background: #4752c4;
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+.user-section {
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+#logged-in-view {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.avatar {
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border:
+        2px solid var(--purple);
+
+}
+
+
+.username {
+
+    font-weight: 700;
+
+}
+
+
+.logout-btn {
+
+    padding: 8px 12px;
+
+    color: var(--muted);
+
+    background: transparent;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+}
+
+
+.logout-btn:hover {
+
+    color: white;
+
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+
+    width:
+        min(
+            1200px,
+            calc(100% - 30px)
         );
 
+    margin:
+        45px auto 70px;
 
-    if (accessToken) {
-
-        fetch(
-            "https://discord.com/api/users/@me",
-            {
-                headers: {
-                    authorization:
-                        `Bearer ${accessToken}`
-                }
-            }
-        )
-
-        .then(response => {
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Discord Login fehlgeschlagen."
-                );
-
-            }
-
-            return response.json();
-
-        })
-
-        .then(user => {
-
-            if (!user.id) {
-
-                throw new Error(
-                    "Ungültiger Discord User."
-                );
-
-            }
-
-            currentUser = user;
-
-            window.history.replaceState(
-                {},
-                document.title,
-                REDIRECT_URI
-            );
-
-            loadUserData();
-
-            updateUI();
-
-            renderSprites();
-
-        })
-
-        .catch(error => {
-
-            console.error(
-                "Discord Auth Fehler:",
-                error
-            );
-
-        });
-
-    } else {
-
-        const savedUser =
-            localStorage.getItem(
-                "discord_user"
-            );
+}
 
 
-        if (savedUser) {
+/* =========================
+   HERO
+========================= */
 
-            try {
+.hero {
 
-                currentUser =
-                    JSON.parse(
-                        savedUser
-                    );
+    position: relative;
 
-                loadUserData();
+    padding: 65px 30px;
 
-                updateUI();
+    margin-bottom: 25px;
 
-            } catch {
+    overflow: hidden;
 
-                localStorage.removeItem(
-                    "discord_user"
-                );
+    text-align: center;
 
-            }
+    border:
+        1px solid
+        rgba(114,137,218,0.2);
 
-        }
+    border-radius: 22px;
 
-    }
+    background:
 
-
-    document
-        .getElementById("login-btn")
-        .addEventListener(
-            "click",
-            loginWithDiscord
-        );
-
-
-    document
-        .getElementById("logout-btn")
-        .addEventListener(
-            "click",
-            logout
+        linear-gradient(
+            135deg,
+            rgba(114,137,218,0.14),
+            rgba(255,59,212,0.07)
         );
 
 }
 
 
-/* =========================================
-   LOGIN
-========================================= */
+.hero-content {
 
-function loginWithDiscord() {
+    position: relative;
 
-    const authUrl =
-        "https://discord.com/oauth2/authorize" +
-
-        `?client_id=${CLIENT_ID}` +
-
-        `&redirect_uri=${encodeURIComponent(
-            REDIRECT_URI
-        )}` +
-
-        "&response_type=token" +
-
-        "&scope=identify";
-
-
-    window.location.href =
-        authUrl;
+    z-index: 2;
 
 }
 
 
-/* =========================================
-   LOGOUT
-========================================= */
+.hero-badge {
 
-function logout() {
+    display: inline-block;
 
-    currentUser = null;
+    margin-bottom: 15px;
 
-    collectedSprites = [];
+    padding:
+        6px 12px;
 
-    localStorage.removeItem(
-        "discord_user"
-    );
+    color:
+        #b8c1ff;
 
-    updateUI();
+    background:
+        rgba(114,137,218,0.12);
 
-    renderSprites();
+    border:
+        1px solid
+        rgba(114,137,218,0.25);
 
-    updateProgress();
+    border-radius:
+        999px;
 
-}
+    font-size:
+        12px;
 
+    font-weight:
+        800;
 
-/* =========================================
-   USER DATEN
-========================================= */
-
-function loadUserData() {
-
-    if (!currentUser) {
-        return;
-    }
-
-
-    localStorage.setItem(
-        "discord_user",
-        JSON.stringify(
-            currentUser
-        )
-    );
-
-
-    const saved =
-        localStorage.getItem(
-            `sprites_${currentUser.id}`
-        );
-
-
-    collectedSprites =
-        saved
-            ? JSON.parse(saved)
-            : [];
+    letter-spacing:
+        1.5px;
 
 }
 
 
-/* =========================================
-   USER DATEN SPEICHERN
-========================================= */
+.hero h1 {
 
-function saveUserData() {
+    margin-bottom: 12px;
 
-    if (!currentUser) {
-        return;
-    }
+    font-size:
+        clamp(
+            36px,
+            6vw,
+            64px
+        );
 
+    font-weight:
+        950;
 
-    localStorage.setItem(
-        `sprites_${currentUser.id}`,
-        JSON.stringify(
-            collectedSprites
-        )
-    );
+    letter-spacing:
+        -2px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #8f9dff,
+            #ff66df
+        );
+
+    -webkit-background-clip:
+        text;
+
+    background-clip:
+        text;
+
+    color:
+        transparent;
 
 }
 
 
-/* =========================================
-   UI
-========================================= */
+.hero p {
 
-function updateUI() {
+    max-width:
+        650px;
 
-    const loggedOut =
-        document.getElementById(
-            "logged-out-view"
-        );
+    margin:
+        auto;
 
-    const loggedIn =
-        document.getElementById(
-            "logged-in-view"
-        );
+    color:
+        var(--muted);
 
-    const warning =
-        document.getElementById(
-            "auth-warning"
-        );
-
-
-    if (currentUser) {
-
-        loggedOut.classList.add(
-            "hidden"
-        );
-
-        loggedIn.classList.remove(
-            "hidden"
-        );
-
-        warning.classList.add(
-            "hidden"
-        );
-
-
-        document.getElementById(
-            "user-name"
-        ).textContent =
-            currentUser.global_name ||
-            currentUser.username;
-
-
-        const avatar =
-            currentUser.avatar
-
-                ? `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png?size=128`
-
-                : "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
-        document.getElementById(
-            "user-avatar"
-        ).src =
-            avatar;
-
-    } else {
-
-        loggedOut.classList.remove(
-            "hidden"
-        );
-
-        loggedIn.classList.add(
-            "hidden"
-        );
-
-        warning.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    updateProgress();
+    line-height:
+        1.7;
 
 }
 
 
-/* =========================================
+/* =========================
+   WARNING
+========================= */
+
+.warning-banner {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    padding: 14px 17px;
+
+    color:
+        #ffd86b;
+
+    background:
+        rgba(241,196,15,0.08);
+
+    border:
+        1px solid
+        rgba(241,196,15,0.25);
+
+    border-radius:
+        10px;
+
+}
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-card {
+
+    padding: 22px;
+
+    margin-bottom: 25px;
+
+    background:
+        var(--card);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        15px;
+
+}
+
+
+.progress-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+
+}
+
+
+.progress-title {
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+}
+
+
+.progress-subtitle {
+
+    margin-top: 4px;
+
+    color:
+        var(--muted);
+
+    font-size: 13px;
+
+}
+
+
+.progress-number {
+
+    font-size: 24px;
+
+    font-weight: 900;
+
+    color:
+        var(--purple-light);
+
+}
+
+
+.progress-bar {
+
+    width: 100%;
+
+    height: 12px;
+
+    overflow: hidden;
+
+    background:
+        #080a10;
+
+    border-radius:
+        999px;
+
+}
+
+
+.progress-fill {
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #5865f2,
+            #7289da,
+            #ff3bd4
+        );
+
+    border-radius:
+        inherit;
+
+    transition:
+        width 0.5s ease;
+
+}
+
+
+/* =========================
    CONTROLS
-========================================= */
+========================= */
 
-function setupControls() {
+.controls {
 
-    const search =
-        document.getElementById(
-            "search-input"
-        );
+    display: flex;
 
+    justify-content: space-between;
 
-    search.addEventListener(
-        "input",
-        event => {
+    gap: 15px;
 
-            searchText =
-                event.target.value
-                    .trim()
-                    .toLowerCase();
-
-            renderSprites();
-
-        }
-    );
-
-
-    document
-        .querySelectorAll(
-            ".filter-btn"
-        )
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-                            ".filter-btn"
-                        )
-                        .forEach(btn => {
-
-                            btn.classList.remove(
-                                "active"
-                            );
-
-                        });
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    currentFilter =
-                        button.dataset.filter;
-
-
-                    renderSprites();
-
-                }
-            );
-
-        });
+    margin-bottom: 25px;
 
 }
 
 
-/* =========================================
-   SPRITE TOGGLE
-========================================= */
+.search-box {
 
-function toggleSprite(
-    spriteId
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        0 15px;
+
+    background:
+        var(--card);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        10px;
+
+}
+
+
+.search-box input {
+
+    width: 100%;
+
+    padding:
+        13px 0;
+
+    color: white;
+
+    background: transparent;
+
+    border: none;
+
+    outline: none;
+
+}
+
+
+.search-box input::placeholder {
+
+    color:
+        var(--muted);
+
+}
+
+
+.filters {
+
+    display: flex;
+
+    gap: 7px;
+
+}
+
+
+.filter-btn {
+
+    padding:
+        10px 15px;
+
+    color:
+        var(--muted);
+
+    background:
+        var(--card);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        8px;
+
+    cursor: pointer;
+
+    transition:
+        0.2s;
+
+}
+
+
+.filter-btn:hover,
+.filter-btn.active {
+
+    color: white;
+
+    background:
+        var(--purple);
+
+    border-color:
+        var(--purple);
+
+}
+
+
+/* =========================
+   SECTION
+========================= */
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+
+}
+
+
+.section-title h2 {
+
+    font-size:
+        23px;
+
+}
+
+
+.section-title p {
+
+    margin-top:
+        3px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        13px;
+
+}
+
+
+.section-title > span {
+
+    color:
+        var(--muted);
+
+    font-size:
+        13px;
+
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.sprites-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(
+                235px,
+                1fr
+            )
+        );
+
+    gap:
+        18px;
+
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.sprite-card {
+
+    position: relative;
+
+    padding:
+        20px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            #141827,
+            #0e111b
+        );
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        16px;
+
+    transition:
+        0.25s;
+
+}
+
+
+.sprite-card:hover {
+
+    transform:
+        translateY(-5px);
+
+    border-color:
+        rgba(
+            114,
+            137,
+            218,
+            0.5
+        );
+
+    box-shadow:
+        0 18px 45px
+        rgba(0,0,0,0.3);
+
+}
+
+
+.sprite-card.owned {
+
+    border-color:
+        rgba(
+            46,
+            204,
+            113,
+            0.65
+        );
+
+}
+
+
+.sprite-image-container {
+
+    position: relative;
+
+    display: grid;
+
+    place-items: center;
+
+    width: 150px;
+    height: 150px;
+
+    margin:
+        0 auto 15px;
+
+}
+
+
+.sprite-image-container::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 130px;
+    height: 130px;
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(
+                114,
+                137,
+                218,
+                0.22
+            ),
+            transparent 70%
+        );
+
+}
+
+
+.sprite-image {
+
+    position: relative;
+
+    width: 130px;
+    height: 130px;
+
+    object-fit:
+        contain;
+
+    transition:
+        0.25s;
+
+}
+
+
+.sprite-card:hover
+.sprite-image {
+
+    transform:
+        scale(1.08);
+
+}
+
+
+.sprite-rarity {
+
+    display: inline-block;
+
+    margin-bottom:
+        8px;
+
+    padding:
+        4px 9px;
+
+    border-radius:
+        6px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.rarity-rare {
+
+    color:
+        #8db4ff;
+
+    background:
+        rgba(
+            70,
+            130,
+            255,
+            0.12
+        );
+
+}
+
+
+.rarity-epic {
+
+    color:
+        #d68cff;
+
+    background:
+        rgba(
+            170,
+            70,
+            255,
+            0.12
+        );
+
+}
+
+
+.rarity-legendary {
+
+    color:
+        #ffab5e;
+
+    background:
+        rgba(
+            255,
+            150,
+            50,
+            0.12
+        );
+
+}
+
+
+.rarity-mythic {
+
+    color:
+        #ffe36b;
+
+    background:
+        rgba(
+            255,
+            210,
+            50,
+            0.12
+        );
+
+}
+
+
+.sprite-name {
+
+    margin-bottom:
+        7px;
+
+    font-size:
+        18px;
+
+    font-weight:
+        850;
+
+}
+
+
+.sprite-description {
+
+    min-height:
+        52px;
+
+    margin-bottom:
+        15px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        13px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.sprite-status {
+
+    width:
+        100%;
+
+    padding:
+        10px;
+
+    color:
+        white;
+
+    background:
+        #282e44;
+
+    border:
+        none;
+
+    border-radius:
+        8px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s;
+
+}
+
+
+.sprite-status:hover {
+
+    background:
+        #353c57;
+
+}
+
+
+.sprite-card.owned
+.sprite-status {
+
+    color:
+        #07130c;
+
+    background:
+        var(--green);
+
+}
+
+
+.owned-badge {
+
+    position:
+        absolute;
+
+    top:
+        12px;
+
+    right:
+        12px;
+
+    width:
+        29px;
+
+    height:
+        29px;
+
+    display:
+        none;
+
+    place-items:
+        center;
+
+    color:
+        white;
+
+    background:
+        var(--green);
+
+    border-radius:
+        50%;
+
+    font-weight:
+        900;
+
+}
+
+
+.sprite-card.owned
+.owned-badge {
+
+    display:
+        grid;
+
+}
+
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty-state {
+
+    grid-column:
+        1 / -1;
+
+    padding:
+        60px 20px;
+
+    text-align:
+        center;
+
+    color:
+        var(--muted);
+
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+
+    margin-top:
+        60px;
+
+    padding:
+        25px;
+
+    text-align:
+        center;
+
+    color:
+        #656c80;
+
+    border-top:
+        1px solid
+        var(--border);
+
+    line-height:
+        1.7;
+
+}
+
+
+footer span {
+
+    display:
+        block;
+
+    font-size:
+        12px;
+
+}
+
+
+/* =========================
+   HIDDEN
+========================= */
+
+.hidden {
+
+    display:
+        none !important;
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (
+    max-width: 700px
 ) {
 
-    if (!currentUser) {
+    .navbar {
 
-        alert(
-            "Bitte melde dich zuerst mit Discord an!"
-        );
-
-        return;
+        padding:
+            13px 15px;
 
     }
 
 
-    const index =
-        collectedSprites.indexOf(
-            spriteId
-        );
+    .username {
 
-
-    if (index >= 0) {
-
-        collectedSprites.splice(
-            index,
-            1
-        );
-
-    } else {
-
-        collectedSprites.push(
-            spriteId
-        );
+        display:
+            none;
 
     }
 
 
-    saveUserData();
+    .container {
 
-    renderSprites();
+        width:
+            calc(100% - 20px);
 
-    updateProgress();
-
-}
-
-
-/* =========================================
-   FILTER
-========================================= */
-
-function getVisibleSprites() {
-
-    return SPRITES_DATA.filter(
-        sprite => {
-
-            const matchesSearch =
-                sprite.name
-                    .toLowerCase()
-                    .includes(
-                        searchText
-                    );
-
-
-            const owned =
-                collectedSprites.includes(
-                    sprite.id
-                );
-
-
-            let matchesFilter =
-                true;
-
-
-            if (
-                currentFilter ===
-                "owned"
-            ) {
-
-                matchesFilter =
-                    owned;
-
-            }
-
-
-            if (
-                currentFilter ===
-                "missing"
-            ) {
-
-                matchesFilter =
-                    !owned;
-
-            }
-
-
-            return (
-                matchesSearch &&
-                matchesFilter
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================
-   SPRITES RENDERN
-========================================= */
-
-function renderSprites() {
-
-    const container =
-        document.getElementById(
-            "sprites-container"
-        );
-
-
-    const sprites =
-        getVisibleSprites();
-
-
-    container.innerHTML =
-        "";
-
-
-    document.getElementById(
-        "sprite-count"
-    ).textContent =
-        `${sprites.length} Sprites`;
-
-
-    if (
-        sprites.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                🔎
-
-                <h3>
-                    Keine Sprites gefunden
-                </h3>
-
-                <p>
-                    Versuche einen anderen Suchbegriff.
-                </p>
-
-            </div>
-
-        `;
-
-        return;
+        margin-top:
+            25px;
 
     }
 
 
-    sprites.forEach(
-        sprite => {
+    .hero {
 
-            const owned =
-                collectedSprites.includes(
-                    sprite.id
-                );
+        padding:
+            45px 20px;
 
-
-            const card =
-                document.createElement(
-                    "article"
-                );
+    }
 
 
-            card.className =
-                `sprite-card ${
-                    owned
-                        ? "owned"
-                        : ""
-                }`;
+    .controls {
+
+        flex-direction:
+            column;
+
+    }
 
 
-            const rarityClass =
-                `rarity-${sprite.rarity.toLowerCase()}`;
+    .filters {
+
+        overflow-x:
+            auto;
+
+    }
 
 
-            card.innerHTML = `
+    .filter-btn {
 
-                <div class="owned-badge">
-                    ✓
-                </div>
+        white-space:
+            nowrap;
 
-
-                <div class="sprite-image-container">
-
-                    <img
-                        class="sprite-image"
-                        src="${sprite.image}"
-                        alt="${sprite.name}"
-                        loading="lazy"
-                        onerror="this.style.opacity='0.15'"
-                    >
-
-                </div>
+    }
 
 
-                <div
-                    class="sprite-rarity ${rarityClass}"
-                >
-                    ${sprite.rarity}
-                </div>
+    .sprites-grid {
 
+        grid-template-columns:
+            1fr;
 
-                <h3 class="sprite-name">
-                    ${sprite.name}
-                </h3>
-
-
-                <p class="sprite-description">
-                    ${sprite.description}
-                </p>
-
-
-                <button
-                    class="sprite-status"
-                    onclick="toggleSprite('${sprite.id}')"
-                >
-                    ${
-                        owned
-                            ? "✓ Gesammelt"
-                            : "Als gesammelt markieren"
-                    }
-                </button>
-
-            `;
-
-
-            container.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================
-   PROGRESS
-========================================= */
-
-function updateProgress() {
-
-    const total =
-        SPRITES_DATA.length;
-
-
-    const collected =
-        collectedSprites.filter(
-            id =>
-                SPRITES_DATA.some(
-                    sprite =>
-                        sprite.id === id
-                )
-        ).length;
-
-
-    const percentage =
-        total === 0
-
-            ? 0
-
-            : Math.round(
-                (
-                    collected /
-                    total
-                ) * 100
-            );
-
-
-    document.getElementById(
-        "progress-bar-fill"
-    ).style.width =
-        `${percentage}%`;
-
-
-    document.getElementById(
-        "progress-number"
-    ).textContent =
-        `${percentage}%`;
-
-
-    document.getElementById(
-        "progress-text"
-    ).textContent =
-        `${collected} von ${total} gesammelt`;
+    }
 
 }
