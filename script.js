@@ -1,10 +1,40 @@
-const CLIENT_ID =
-    "1556295412757823558";
 
-const REDIRECT_URI =
-    "https://ykbqnxqlbttqzaerqgnb.supabase.co/auth/v1/callback";
+const SUPABASE_URL =
+    "https://ykbqnxqlbttqzaerqgnb.supabase.co";
 
 
+const SUPABASE_ANON_KEY =
+    "sb_publishable_nHZCz4UMQecRv8WmvIiZ6A_j_aQLRx_";
+
+
+
+const WEBSITE_URL =
+    "https://tommmyshelby.github.io/Fortnite/";
+
+
+
+
+let supabaseClient = null;
+
+if (
+    window.supabase &&
+    typeof window.supabase.createClient === "function"
+) {
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+} else {
+    console.error(
+        "Supabase wurde nicht geladen. " +
+        "Prüfe, ob supabase-js in deiner index.html eingebunden ist."
+    );
+}
+
+
+/* =========================================================
+   SPRITES
+   ========================================================= */
 
 const SPRITES_DATA = [
 
@@ -236,9 +266,6 @@ const SPRITES_DATA = [
 ];
 
 
-/* =========================================
-   VARIABLEN
-========================================= */
 
 let currentUser = null;
 
@@ -249,17 +276,14 @@ let currentFilter = "all";
 let searchText = "";
 
 
-/* =========================================
-   START
-========================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
-
-        initAuth();
+    async () => {
 
         setupControls();
+
+        setupAuth();
 
         renderSprites();
 
@@ -269,175 +293,286 @@ document.addEventListener(
 );
 
 
-/* =========================================
-   DISCORD LOGIN
-========================================= */
 
-function initAuth() {
 
-    const fragment =
-        new URLSearchParams(
-            window.location.hash.slice(1)
+function setupAuth() {
+
+    const loginButton =
+        document.getElementById("login-btn");
+
+    const logoutButton =
+        document.getElementById("logout-btn");
+
+
+    if (loginButton) {
+
+        loginButton.addEventListener(
+            "click",
+            loginWithDiscord
         );
 
-    const accessToken =
-        fragment.get(
-            "access_token"
+    }
+
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            logout
         );
 
+    }
 
-    if (accessToken) {
 
-        fetch(
-            "https://discord.com/api/users/@me",
-            {
-                headers: {
-                    authorization:
-                        `Bearer ${accessToken}`
+    restoreSupabaseSession();
+
+
+
+    if (supabaseClient) {
+
+        supabaseClient.auth.onAuthStateChange(
+            async (event, session) => {
+
+                console.log(
+                    "Supabase Auth:",
+                    event
+                );
+
+
+                if (session && session.user) {
+
+                    await setCurrentUser(
+                        session.user
+                    );
+
+                } else {
+
+                    currentUser = null;
+
+                    collectedSprites = [];
+
+                    updateUI();
+
+                    renderSprites();
+
+                    updateProgress();
+
                 }
-            }
-        )
-
-        .then(response => {
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Discord Login fehlgeschlagen."
-                );
 
             }
+        );
 
-            return response.json();
+    }
 
-        })
+}
 
-        .then(user => {
 
-            if (!user.id) {
 
-                throw new Error(
-                    "Ungültiger Discord User."
-                );
 
-            }
+async function restoreSupabaseSession() {
 
-            currentUser = user;
+    if (!supabaseClient) {
 
-            window.history.replaceState(
-                {},
-                document.title,
-                REDIRECT_URI
+        console.error(
+            "Supabase Client ist nicht verfügbar."
+        );
+
+        updateUI();
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Session Fehler:",
+                error
             );
 
-            loadUserData();
+            currentUser = null;
+
+            updateUI();
+
+            return;
+
+        }
+
+
+        if (
+            data &&
+            data.session &&
+            data.session.user
+        ) {
+
+            await setCurrentUser(
+                data.session.user
+            );
+
+        } else {
+
+            currentUser = null;
+
+            collectedSprites = [];
 
             updateUI();
 
             renderSprites();
 
-        })
-
-        .catch(error => {
-
-            console.error(
-                "Discord Auth Fehler:",
-                error
-            );
-
-        });
-
-    } else {
-
-        const savedUser =
-            localStorage.getItem(
-                "discord_user"
-            );
-
-
-        if (savedUser) {
-
-            try {
-
-                currentUser =
-                    JSON.parse(
-                        savedUser
-                    );
-
-                loadUserData();
-
-                updateUI();
-
-            } catch {
-
-                localStorage.removeItem(
-                    "discord_user"
-                );
-
-            }
+            updateProgress();
 
         }
+
+    } catch (error) {
+
+        console.error(
+            "Fehler beim Wiederherstellen der Session:",
+            error
+        );
+
+        currentUser = null;
+
+        updateUI();
+
+    }
+
+}
+
+
+
+
+async function loginWithDiscord() {
+
+    if (!supabaseClient) {
+
+        alert(
+            "Supabase wurde nicht geladen."
+        );
+
+        return;
 
     }
 
 
-    document
-        .getElementById("login-btn")
-        .addEventListener(
-            "click",
-            loginWithDiscord
+    if (
+        !SUPABASE_ANON_KEY ||
+        SUPABASE_ANON_KEY ===
+        "DEIN_SUPABASE_PUBLISHABLE_KEY"
+    ) {
+
+        alert(
+            "Der Supabase Publishable/Anon Key fehlt noch in der script.js."
         );
 
-
-    document
-        .getElementById("logout-btn")
-        .addEventListener(
-            "click",
-            logout
+        console.error(
+            "SUPABASE_ANON_KEY wurde noch nicht gesetzt."
         );
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.signInWithOAuth({
+
+                provider: "discord",
+
+                options: {
+
+                    redirectTo:
+                        WEBSITE_URL
+
+                }
+
+            });
+
+
+        if (error) {
+
+            console.error(
+                "Discord Login Fehler:",
+                error
+            );
+
+            alert(
+                "Discord Login fehlgeschlagen:\n\n" +
+                error.message
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "Discord Login gestartet:",
+            data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Login Exception:",
+            error
+        );
+
+        alert(
+            "Beim Discord Login ist ein Fehler aufgetreten."
+        );
+
+    }
 
 }
 
 
-/* =========================================
-   LOGIN
-========================================= */
-
-function loginWithDiscord() {
-
-    const authUrl =
-        "https://discord.com/oauth2/authorize" +
-
-        `?client_id=${CLIENT_ID}` +
-
-        `&redirect_uri=${encodeURIComponent(
-            REDIRECT_URI
-        )}` +
-
-        "&response_type=token" +
-
-        "&scope=identify";
 
 
-    window.location.href =
-        authUrl;
+async function setCurrentUser(user) {
 
-}
+    if (!user) {
+
+        currentUser = null;
+
+        collectedSprites = [];
+
+        updateUI();
+
+        renderSprites();
+
+        updateProgress();
+
+        return;
+
+    }
 
 
-/* =========================================
-   LOGOUT
-========================================= */
+    currentUser = user;
 
-function logout() {
 
-    currentUser = null;
-
-    collectedSprites = [];
-
-    localStorage.removeItem(
-        "discord_user"
+    console.log(
+        "Discord Benutzer angemeldet:",
+        currentUser
     );
+
+
+    await loadUserData();
+
 
     updateUI();
 
@@ -448,63 +583,215 @@ function logout() {
 }
 
 
-/* =========================================
-   USER DATEN
-========================================= */
+async function logout() {
 
-function loadUserData() {
+    if (!supabaseClient) {
 
-    if (!currentUser) {
         return;
+
     }
 
 
-    localStorage.setItem(
-        "discord_user",
-        JSON.stringify(
-            currentUser
-        )
-    );
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient.auth.signOut();
 
 
-    const saved =
-        localStorage.getItem(
-            `sprites_${currentUser.id}`
+        if (error) {
+
+            console.error(
+                "Logout Fehler:",
+                error
+            );
+
+            alert(
+                "Logout fehlgeschlagen:\n\n" +
+                error.message
+            );
+
+            return;
+
+        }
+
+
+        currentUser = null;
+
+        collectedSprites = [];
+
+
+        updateUI();
+
+        renderSprites();
+
+        updateProgress();
+
+
+    } catch (error) {
+
+        console.error(
+            "Logout Exception:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+async function loadUserData() {
+
+    if (!currentUser) {
+
+        collectedSprites = [];
+
+        return;
+
+    }
+
+
+    try {
+
+
+
+        const metadata =
+            currentUser.user_metadata || {};
+
+
+        const savedSprites =
+            metadata.collected_sprites;
+
+
+        if (Array.isArray(savedSprites)) {
+
+            collectedSprites =
+                savedSprites.filter(
+                    id =>
+                        SPRITES_DATA.some(
+                            sprite =>
+                                sprite.id === id
+                        )
+                );
+
+        } else {
+
+            collectedSprites = [];
+
+        }
+
+
+        console.log(
+            "Gesammelte Sprites geladen:",
+            collectedSprites
         );
 
 
-    collectedSprites =
-        saved
-            ? JSON.parse(saved)
-            : [];
+    } catch (error) {
+
+        console.error(
+            "Fehler beim Laden der User-Daten:",
+            error
+        );
+
+        collectedSprites = [];
+
+    }
 
 }
 
 
-/* =========================================
-   USER DATEN SPEICHERN
-========================================= */
 
-function saveUserData() {
+
+async function saveUserData() {
 
     if (!currentUser) {
-        return;
+
+        return false;
+
     }
 
 
-    localStorage.setItem(
-        `sprites_${currentUser.id}`,
-        JSON.stringify(
+    if (!supabaseClient) {
+
+        return false;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.updateUser({
+
+                data: {
+
+                    collected_sprites:
+                        collectedSprites
+
+                }
+
+            });
+
+
+        if (error) {
+
+            console.error(
+                "Sprite-Daten konnten nicht gespeichert werden:",
+                error
+            );
+
+            alert(
+                "Die Sprite-Daten konnten nicht gespeichert werden."
+            );
+
+            return false;
+
+        }
+
+
+
+        if (
+            data &&
+            data.user
+        ) {
+
+            currentUser =
+                data.user;
+
+        }
+
+
+        console.log(
+            "Sprite-Daten gespeichert:",
             collectedSprites
-        )
-    );
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Speichern Exception:",
+            error
+        );
+
+        return false;
+
+    }
 
 }
 
 
-/* =========================================
-   UI
-========================================= */
+
 
 function updateUI() {
 
@@ -513,15 +800,28 @@ function updateUI() {
             "logged-out-view"
         );
 
+
     const loggedIn =
         document.getElementById(
             "logged-in-view"
         );
 
+
     const warning =
         document.getElementById(
             "auth-warning"
         );
+
+
+    if (!loggedOut || !loggedIn) {
+
+        console.warn(
+            "Login UI Elemente fehlen in der index.html."
+        );
+
+        return;
+
+    }
 
 
     if (currentUser) {
@@ -530,34 +830,62 @@ function updateUI() {
             "hidden"
         );
 
+
         loggedIn.classList.remove(
             "hidden"
         );
 
-        warning.classList.add(
-            "hidden"
-        );
+
+        if (warning) {
+
+            warning.classList.add(
+                "hidden"
+            );
+
+        }
 
 
-        document.getElementById(
-            "user-name"
-        ).textContent =
-            currentUser.global_name ||
-            currentUser.username;
+ 
+        const userName =
+            document.getElementById(
+                "user-name"
+            );
 
 
-        const avatar =
-            currentUser.avatar
+        if (userName) {
 
-                ? `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png?size=128`
+            userName.textContent =
+                getDiscordUsername(
+                    currentUser
+                );
 
-                : "https://cdn.discordapp.com/embed/avatars/0.png";
+        }
 
 
-        document.getElementById(
-            "user-avatar"
-        ).src =
-            avatar;
+        /*
+         * Discord Avatar
+         */
+
+        const userAvatar =
+            document.getElementById(
+                "user-avatar"
+            );
+
+
+        if (userAvatar) {
+
+            userAvatar.src =
+                getDiscordAvatar(
+                    currentUser
+                );
+
+            userAvatar.alt =
+                getDiscordUsername(
+                    currentUser
+                );
+
+        }
+
 
     } else {
 
@@ -565,13 +893,19 @@ function updateUI() {
             "hidden"
         );
 
+
         loggedIn.classList.add(
             "hidden"
         );
 
-        warning.classList.remove(
-            "hidden"
-        );
+
+        if (warning) {
+
+            warning.classList.remove(
+                "hidden"
+            );
+
+        }
 
     }
 
@@ -581,9 +915,91 @@ function updateUI() {
 }
 
 
-/* =========================================
-   CONTROLS
-========================================= */
+
+function getDiscordUsername(user) {
+
+    if (!user) {
+
+        return "Discord User";
+
+    }
+
+
+    const metadata =
+        user.user_metadata || {};
+
+
+    return (
+        metadata.global_name ||
+        metadata.full_name ||
+        metadata.name ||
+        metadata.user_name ||
+        metadata.preferred_username ||
+        user.email?.split("@")[0] ||
+        "Discord User"
+    );
+
+}
+
+
+
+function getDiscordAvatar(user) {
+
+    if (!user) {
+
+        return (
+            "https://cdn.discordapp.com/embed/avatars/0.png"
+        );
+
+    }
+
+
+    const metadata =
+        user.user_metadata || {};
+
+
+
+
+    if (metadata.avatar_url) {
+
+        return metadata.avatar_url;
+
+    }
+
+
+
+
+    const avatar =
+        metadata.avatar;
+
+
+    const discordId =
+        metadata.provider_id ||
+        metadata.sub ||
+        user.user_metadata?.id;
+
+
+    if (
+        avatar &&
+        discordId
+    ) {
+
+        return (
+            `https://cdn.discordapp.com/avatars/` +
+            `${discordId}/${avatar}.png?size=128`
+        );
+
+    }
+
+
+    return (
+        "https://cdn.discordapp.com/embed/avatars/0.png"
+    );
+
+}
+
+
+
 
 function setupControls() {
 
@@ -593,75 +1009,100 @@ function setupControls() {
         );
 
 
-    search.addEventListener(
-        "input",
-        event => {
+    if (search) {
 
-            searchText =
-                event.target.value
-                    .trim()
-                    .toLowerCase();
+        search.addEventListener(
+            "input",
+            event => {
 
-            renderSprites();
+                searchText =
+                    event.target.value
+                        .trim()
+                        .toLowerCase();
 
-        }
-    );
+
+                renderSprites();
+
+            }
+        );
+
+    }
 
 
     document
         .querySelectorAll(
             ".filter-btn"
         )
-        .forEach(button => {
+        .forEach(
+            button => {
 
-            button.addEventListener(
-                "click",
-                () => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-                    document
-                        .querySelectorAll(
-                            ".filter-btn"
-                        )
-                        .forEach(btn => {
+                        document
+                            .querySelectorAll(
+                                ".filter-btn"
+                            )
+                            .forEach(
+                                btn => {
 
-                            btn.classList.remove(
-                                "active"
+                                    btn.classList.remove(
+                                        "active"
+                                    );
+
+                                }
                             );
 
-                        });
+
+                        button.classList.add(
+                            "active"
+                        );
 
 
-                    button.classList.add(
-                        "active"
-                    );
+                        currentFilter =
+                            button.dataset.filter ||
+                            "all";
 
 
-                    currentFilter =
-                        button.dataset.filter;
+                        renderSprites();
 
+                    }
+                );
 
-                    renderSprites();
-
-                }
-            );
-
-        });
+            }
+        );
 
 }
 
 
-/* =========================================
-   SPRITE TOGGLE
-========================================= */
 
-function toggleSprite(
-    spriteId
-) {
+
+async function toggleSprite(spriteId) {
 
     if (!currentUser) {
 
         alert(
             "Bitte melde dich zuerst mit Discord an!"
+        );
+
+        return;
+
+    }
+
+
+    const spriteExists =
+        SPRITES_DATA.some(
+            sprite =>
+                sprite.id === spriteId
+        );
+
+
+    if (!spriteExists) {
+
+        console.error(
+            "Unbekannter Sprite:",
+            spriteId
         );
 
         return;
@@ -677,12 +1118,15 @@ function toggleSprite(
 
     if (index >= 0) {
 
+ 
         collectedSprites.splice(
             index,
             1
         );
 
     } else {
+
+
 
         collectedSprites.push(
             spriteId
@@ -691,7 +1135,19 @@ function toggleSprite(
     }
 
 
-    saveUserData();
+
+
+    const saved =
+        await saveUserData();
+
+
+    if (!saved) {
+
+ 
+        await loadUserData();
+
+    }
+
 
     renderSprites();
 
@@ -700,9 +1156,6 @@ function toggleSprite(
 }
 
 
-/* =========================================
-   FILTER
-========================================= */
 
 function getVisibleSprites() {
 
@@ -760,9 +1213,6 @@ function getVisibleSprites() {
 }
 
 
-/* =========================================
-   SPRITES RENDERN
-========================================= */
 
 function renderSprites() {
 
@@ -770,6 +1220,13 @@ function renderSprites() {
         document.getElementById(
             "sprites-container"
         );
+
+
+    if (!container) {
+
+        return;
+
+    }
 
 
     const sprites =
@@ -780,10 +1237,18 @@ function renderSprites() {
         "";
 
 
-    document.getElementById(
-        "sprite-count"
-    ).textContent =
-        `${sprites.length} Sprites`;
+    const spriteCount =
+        document.getElementById(
+            "sprite-count"
+        );
+
+
+    if (spriteCount) {
+
+        spriteCount.textContent =
+            `${sprites.length} Sprites`;
+
+    }
 
 
     if (
@@ -807,6 +1272,7 @@ function renderSprites() {
             </div>
 
         `;
+
 
         return;
 
@@ -851,8 +1317,8 @@ function renderSprites() {
 
                     <img
                         class="sprite-image"
-                        src="${sprite.image}"
-                        alt="${sprite.name}"
+                        src="${escapeHtml(sprite.image)}"
+                        alt="${escapeHtml(sprite.name)}"
                         loading="lazy"
                         onerror="this.style.opacity='0.15'"
                     >
@@ -863,23 +1329,24 @@ function renderSprites() {
                 <div
                     class="sprite-rarity ${rarityClass}"
                 >
-                    ${sprite.rarity}
+                    ${escapeHtml(sprite.rarity)}
                 </div>
 
 
                 <h3 class="sprite-name">
-                    ${sprite.name}
+                    ${escapeHtml(sprite.name)}
                 </h3>
 
 
                 <p class="sprite-description">
-                    ${sprite.description}
+                    ${escapeHtml(sprite.description)}
                 </p>
 
 
                 <button
                     class="sprite-status"
-                    onclick="toggleSprite('${sprite.id}')"
+                    type="button"
+                    data-sprite-id="${escapeHtml(sprite.id)}"
                 >
                     ${
                         owned
@@ -889,6 +1356,28 @@ function renderSprites() {
                 </button>
 
             `;
+
+
+            const button =
+                card.querySelector(
+                    ".sprite-status"
+                );
+
+
+            if (button) {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        toggleSprite(
+                            sprite.id
+                        );
+
+                    }
+                );
+
+            }
 
 
             container.appendChild(
@@ -901,9 +1390,20 @@ function renderSprites() {
 }
 
 
-/* =========================================
-   PROGRESS
-========================================= */
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
 
 function updateProgress() {
 
@@ -934,21 +1434,61 @@ function updateProgress() {
             );
 
 
-    document.getElementById(
-        "progress-bar-fill"
-    ).style.width =
-        `${percentage}%`;
+    const progressBar =
+        document.getElementById(
+            "progress-bar-fill"
+        );
 
 
-    document.getElementById(
-        "progress-number"
-    ).textContent =
-        `${percentage}%`;
+    if (progressBar) {
+
+        progressBar.style.width =
+            `${percentage}%`;
+
+    }
 
 
-    document.getElementById(
-        "progress-text"
-    ).textContent =
-        `${collected} von ${total} gesammelt`;
+    const progressNumber =
+        document.getElementById(
+            "progress-number"
+        );
+
+
+    if (progressNumber) {
+
+        progressNumber.textContent =
+            `${percentage}%`;
+
+    }
+
+
+    const progressText =
+        document.getElementById(
+            "progress-text"
+        );
+
+
+    if (progressText) {
+
+        progressText.textContent =
+            `${collected} von ${total} gesammelt`;
+
+    }
 
 }
+
+
+
+
+window.toggleSprite =
+    toggleSprite;
+
+
+
+
+window.loginWithDiscord =
+    loginWithDiscord;
+
+
+window.logout =
+    logout;
