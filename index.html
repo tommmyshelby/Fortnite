@@ -9,16 +9,32 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Fortnite Sprite Collection</title>
-
     <meta
-        name="description"
-        content="Deine Fortnite Sprite Sammlung"
+        name="theme-color"
+        content="#07090f"
     >
 
     <meta
-        name="theme-color"
-        content="#080a12"
+        name="description"
+        content="Fortnite Sprite Collection – Sammle, entdecke und vervollständige deine Sprite-Sammlung."
+    >
+
+    <title>SpriteVault — Fortnite Sprite Collection</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
     >
 
     <link
@@ -29,60 +45,93 @@
 
 <body>
 
+    <div class="background">
+        <div class="background-glow glow-one"></div>
+        <div class="background-glow glow-two"></div>
+        <div class="background-grid"></div>
+    </div>
 
 
-    <nav class="navbar">
+    <!-- NAVBAR -->
 
-        <div class="logo">
+    <header class="navbar">
 
-            <div class="logo-icon">
-                👻
+        <a
+            href="#"
+            class="brand"
+        >
+
+            <div class="brand-icon">
+                S
             </div>
 
-            <div class="logo-text">
-                FORTNITE
-                <span>SPRITES</span>
+            <div class="brand-text">
+                <strong>SPRITE</strong>
+                <span>VAULT</span>
             </div>
+
+        </a>
+
+
+        <div class="nav-center">
+
+            <span class="live-dot"></span>
+
+            <span>
+                Sprite Database
+            </span>
 
         </div>
 
 
-        <div class="user-section">
+        <div class="account-area">
 
-            <div id="logged-out-view">
+            <!-- AUSGELOGGT -->
+
+            <div
+                id="logged-out-view"
+                class="logged-out"
+            >
 
                 <button
                     id="login-btn"
-                    class="discord-btn"
+                    class="discord-login"
                 >
-
-                    <span>💬</span>
+                    <span class="discord-symbol">
+                        ◉
+                    </span>
 
                     Mit Discord anmelden
-
                 </button>
 
             </div>
 
 
+            <!-- EINGELOGGT -->
+
             <div
                 id="logged-in-view"
-                class="hidden"
+                class="logged-in hidden"
             >
 
                 <img
                     id="user-avatar"
-                    class="avatar"
+                    class="user-avatar"
                     src="https://cdn.discordapp.com/embed/avatars/0.png"
                     alt="Discord Avatar"
                 >
 
-                <span
-                    id="user-name"
-                    class="username"
-                >
-                    User
-                </span>
+                <div class="user-info">
+
+                    <strong id="user-name">
+                        User
+                    </strong>
+
+                    <span>
+                        Sammlung
+                    </span>
+
+                </div>
 
                 <button
                     id="logout-btn"
@@ -95,138 +144,424 @@
 
         </div>
 
-    </nav>
+    </header>
 
 
+    <main class="page">
 
 
-    <main class="container">
-
+        <!-- HERO -->
 
         <section class="hero">
 
             <div class="hero-content">
 
-                <div class="hero-badge">
-                    CHAPTER 7 • SEASON 4
+                <div class="hero-pill">
+                    <span></span>
+                    LIVE SPRITE DATABASE
                 </div>
 
                 <h1>
-                    SPRITE COLLECTION
+                    Deine
+                    <span>Sprite</span>
+                    Sammlung.
                 </h1>
 
                 <p>
-                    Sammle alle Fortnite Sprites,
-                    extrahiere sie erfolgreich und
-                    vervollständige deine Sammlung.
+                    Entdecke alle Fortnite Sprites,
+                    Varianten und Raritäten.
+                    Markiere deine Sammlung und
+                    behalte deinen Fortschritt im Blick.
+                </p>
+
+
+                <div class="hero-actions">
+
+                    <button
+                        class="hero-button"
+                        onclick="document.getElementById('collection').scrollIntoView({ behavior: 'smooth' })"
+                    >
+                        Sammlung öffnen
+                        <span>↓</span>
+                    </button>
+
+                    <div class="hero-status">
+
+                        <span class="status-check">
+                            ✓
+                        </span>
+
+                        Bilder werden automatisch geladen
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-visual">
+
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+
+                <div class="hero-card hero-card-back">
+                    <div class="fake-sprite"></div>
+                </div>
+
+                <div class="hero-card hero-card-main">
+
+                    <div class="hero-card-top">
+                        <span>SPRITE</span>
+                        <span>MYTHIC</span>
+                    </div>
+
+                    <div class="hero-sprite">
+                        <div class="sprite-glow"></div>
+                        <div class="sprite-placeholder">
+                            ✦
+                        </div>
+                    </div>
+
+                    <div class="hero-card-bottom">
+                        <strong>Collection</strong>
+                        <span>∞ Variants</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- LOGIN WARNING -->
+
+        <div
+            id="auth-warning"
+            class="auth-warning"
+        >
+
+            <div class="warning-icon">
+                !
+            </div>
+
+            <div>
+
+                <strong>
+                    Sammlung speichern
+                </strong>
+
+                <p>
+                    Melde dich mit Discord an,
+                    damit dein Fortschritt gespeichert wird.
                 </p>
 
             </div>
 
-        </section>
-
-
-
-        <div
-            id="auth-warning"
-            class="warning-banner"
-        >
-
-            ⚠️
-
-            <span>
-                Melde dich mit Discord an,
-                um deine Sammlung zu speichern.
-            </span>
+            <button
+                onclick="loginWithDiscord()"
+            >
+                Anmelden
+            </button>
 
         </div>
 
 
+        <!-- COLLECTION STATS -->
 
+        <section
+            id="collection"
+            class="stats-section"
+        >
 
-        <section class="progress-card">
-
-            <div class="progress-header">
+            <div class="section-heading">
 
                 <div>
 
-                    <div class="progress-title">
-                        Meine Sammlung
-                    </div>
+                    <span class="eyebrow">
+                        COLLECTION
+                    </span>
 
-                    <div
-                        id="progress-text"
-                        class="progress-subtitle"
-                    >
-                        0 von 0 gesammelt
-                    </div>
+                    <h2>
+                        Deine Sammlung
+                    </h2>
 
                 </div>
 
-
-                <div
-                    id="progress-number"
-                    class="progress-number"
+                <span
+                    id="database-status"
+                    class="database-status"
                 >
-                    0%
-                </div>
+                    <i></i>
+                    Lade Daten...
+                </span>
 
             </div>
 
 
-            <div class="progress-bar">
+            <div class="stats-grid">
 
-                <div
-                    id="progress-bar-fill"
-                    class="progress-fill"
-                ></div>
+
+                <div class="stat-card stat-main">
+
+                    <div class="stat-icon">
+                        ✦
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            GESAMMELT
+                        </span>
+
+                        <strong id="collected-count">
+                            0
+                        </strong>
+
+                        <small>
+                            von
+                            <b id="total-count">
+                                0
+                            </b>
+                            Sprites
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        FORTSCHRITT
+                    </div>
+
+                    <div class="stat-number">
+                        <span id="progress-number">
+                            0
+                        </span>%
+                    </div>
+
+                    <div class="mini-progress">
+
+                        <div
+                            id="progress-bar-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        FAMILIEN
+                    </div>
+
+                    <div
+                        id="family-count"
+                        class="stat-number"
+                    >
+                        0
+                    </div>
+
+                    <small>
+                        Sprite-Familien
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        VARIANTEN
+                    </div>
+
+                    <div
+                        id="variant-count"
+                        class="stat-number"
+                    >
+                        0
+                    </div>
+
+                    <small>
+                        unterschiedliche Varianten
+                    </small>
+
+                </div>
 
             </div>
 
         </section>
 
 
+        <!-- CONTROLS -->
 
+        <section class="controls-section">
 
-        <section class="controls">
+            <div class="search-wrapper">
 
-            <div class="search-box">
-
-                <span>
-                    🔎
+                <span class="search-icon">
+                    ⌕
                 </span>
 
                 <input
                     id="search-input"
                     type="text"
-                    placeholder="Sprite suchen..."
+                    placeholder="Sprite, Familie oder Variante suchen..."
                     autocomplete="off"
                 >
+
+                <kbd>
+                    /
+                </kbd>
 
             </div>
 
 
-            <div class="filters">
+            <div class="filter-row">
+
+
+                <div class="filter-group">
+
+                    <button
+                        class="filter-btn active"
+                        data-filter="all"
+                    >
+                        Alle
+                    </button>
+
+                    <button
+                        class="filter-btn"
+                        data-filter="owned"
+                    >
+                        ✓ Gesammelt
+                    </button>
+
+                    <button
+                        class="filter-btn"
+                        data-filter="missing"
+                    >
+                        Fehlend
+                    </button>
+
+                </div>
+
+
+                <select
+                    id="rarity-filter"
+                    class="select-filter"
+                >
+
+                    <option value="all">
+                        Alle Raritäten
+                    </option>
+
+                    <option value="mythic">
+                        Mythic
+                    </option>
+
+                    <option value="legendary">
+                        Legendary
+                    </option>
+
+                    <option value="epic">
+                        Epic
+                    </option>
+
+                    <option value="rare">
+                        Rare
+                    </option>
+
+                    <option value="special">
+                        Special
+                    </option>
+
+                </select>
+
+
+                <select
+                    id="variant-filter"
+                    class="select-filter"
+                >
+
+                    <option value="all">
+                        Alle Varianten
+                    </option>
+
+                </select>
+
+
+                <select
+                    id="sort-filter"
+                    class="select-filter"
+                >
+
+                    <option value="default">
+                        Standard
+                    </option>
+
+                    <option value="name">
+                        Name A-Z
+                    </option>
+
+                    <option value="rarity">
+                        Rarität
+                    </option>
+
+                    <option value="variant">
+                        Variante
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- FAMILY NAV -->
+
+        <section class="family-section">
+
+            <div class="section-heading compact">
+
+                <div>
+
+                    <span class="eyebrow">
+                        FAMILIEN
+                    </span>
+
+                    <h2>
+                        Sprite Familien
+                    </h2>
+
+                </div>
+
+                <span
+                    id="visible-count"
+                    class="result-count"
+                >
+                    0 Ergebnisse
+                </span>
+
+            </div>
+
+
+            <div
+                id="family-list"
+                class="family-list"
+            >
 
                 <button
-                    class="filter-btn active"
-                    data-filter="all"
+                    class="family-btn active"
+                    data-family="all"
                 >
                     Alle
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="missing"
-                >
-                    Fehlen
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="owned"
-                >
-                    Gesammelt
                 </button>
 
             </div>
@@ -234,58 +569,116 @@
         </section>
 
 
-   
+        <!-- SPRITES -->
 
-        <div class="section-title">
+        <section class="sprites-section">
 
-            <div>
+            <div
+                id="loading-state"
+                class="loading-state"
+            >
 
-                <h2>
-                    👻 Alle Sprites
-                </h2>
+                <div class="loader"></div>
 
-                <p>
-                    Kapitel 7 • Season 4 • Override
-                </p>
+                <strong>
+                    Sprites werden geladen...
+                </strong>
+
+                <span>
+                    Datenbank wird synchronisiert
+                </span>
 
             </div>
 
 
-            <span id="sprite-count">
-                0 Sprites
-            </span>
+            <div
+                id="error-state"
+                class="error-state hidden"
+            >
 
-        </div>
+                <div>
+                    ⚠
+                </div>
+
+                <strong>
+                    Sprites konnten nicht geladen werden
+                </strong>
+
+                <span id="error-message">
+                    Bitte versuche es später erneut.
+                </span>
+
+                <button
+                    onclick="loadSprites(true)"
+                >
+                    Erneut versuchen
+                </button>
+
+            </div>
 
 
-  
+            <div
+                id="sprites-container"
+                class="sprites-grid"
+            ></div>
 
-        <section
-            id="sprites-container"
-            class="sprites-grid"
-        ></section>
+        </section>
 
 
+        <!-- FOOTER -->
 
         <footer>
 
-            <div>
-                Fortnite Sprite Collection
+            <div class="footer-brand">
+
+                <div class="brand-icon">
+                    S
+                </div>
+
+                <div>
+
+                    <strong>
+                        SPRITEVAULT
+                    </strong>
+
+                    <span>
+                        Fortnite Sprite Collection
+                    </span>
+
+                </div>
+
             </div>
 
-            <span>
-                Fan-Projekt • Nicht mit Epic Games verbunden
-            </span>
+
+            <div class="footer-info">
+
+                <span>
+                    Fan-Projekt
+                </span>
+
+                <span>
+                    •
+                </span>
+
+                <span>
+                    Nicht mit Epic Games verbunden
+                </span>
+
+            </div>
 
         </footer>
 
     </main>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+   
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-<script src="script.js"></script>
+
+    <script src="script.js"></script>
 
 </body>
+
 </html>
