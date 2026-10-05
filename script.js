@@ -1,7 +1,8 @@
 /* =========================================================
    SPRITE VAULT - Fortnite Sprite Collection
-   Reparatur: Bild-Proxy, echte Namen, Rarity-Farben,
-   Local-Storage-Fallback, deutsche Varianten-Anzeige
+   v2: Markup 100% an die vorhandene style.css angepasst
+   (.owned, .owned-badge, .sprite-image-container, .sprite-status,
+   Rarity-Badges), Bild-Proxy-Fallback, Local-Storage ohne Login
    ========================================================= */
 
 // =========================================================
@@ -106,10 +107,7 @@ function loadLocalCollection() {
 
 function saveLocalCollection() {
     try {
-        localStorage.setItem(
-            LOCAL_KEY,
-            JSON.stringify(collectedSprites)
-        );
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(collectedSprites));
     } catch (error) {
         console.error("Local save failed:", error);
     }
@@ -163,20 +161,27 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-function injectRarityStyles() {
+// Zusaetzliche Styles, die in style.css noch fehlen
+function injectExtraStyles() {
     const style = document.createElement("style");
     style.textContent = [
-        ".sprite-card { --rarity-color: #8b93a7; }",
-        ".sprite-card.rarity-mythic { --rarity-color: #e8b1ff; }",
-        ".sprite-card.rarity-legendary { --rarity-color: #ffb84d; }",
-        ".sprite-card.rarity-epic { --rarity-color: #c86dff; }",
-        ".sprite-card.rarity-rare { --rarity-color: #5ec8ff; }",
-        ".sprite-card.rarity-special { --rarity-color: #37e89a; }",
-        ".sprite-card .sprite-rarity { color: var(--rarity-color); font-weight: 800; text-transform: capitalize; }",
-        ".sprite-card .sprite-family { text-transform: capitalize; }",
-        ".sprite-card.collected .sprite-image { box-shadow: 0 0 0 1px var(--rarity-color), 0 10px 30px rgba(0,0,0,0.35); }",
-        ".sprite-card .sprite-variant { color: #b8bfd0; }",
-        ".sprite-card .sprite-season { color: #8b93a7; font-size: 11px; letter-spacing: 0.06em; }"
+        ".sprite-image-container .image-error-text {",
+        "  position: relative;",
+        "  z-index: 1;",
+        "  color: #596176;",
+        "  font-size: 11px;",
+        "  font-weight: 700;",
+        "  text-align: center;",
+        "  padding: 10px;",
+        "}",
+        ".sprite-season {",
+        "  color: #596176;",
+        "  font-size: 8px;",
+        "  font-weight: 800;",
+        "  letter-spacing: 0.08em;",
+        "  text-transform: uppercase;",
+        "}",
+        ".sprite-card { cursor: pointer; }"
     ].join("\n");
     document.head.appendChild(style);
 }
@@ -186,13 +191,20 @@ function injectRarityStyles() {
 // =========================================================
 
 document.addEventListener("DOMContentLoaded", async () => {
-    injectRarityStyles();
+    injectExtraStyles();
     setupControls();
     setupAuthButtons();
 
     await initializeAuth();
     await loadSprites();
 });
+
+// Global, damit onclick="loginWithDiscord()" im index.html funktioniert
+function loginWithDiscord() {
+    if (loginBtn) {
+        loginBtn.click();
+    }
+}
 
 // =========================================================
 // AUTH
@@ -341,11 +353,11 @@ function showAuthError(message) {
     if (!authWarning) {
         return;
     }
-    authWarning.style.display = "block";
+    authWarning.style.display = "flex";
     authWarning.innerHTML =
-        "<strong>Discord Login fehlgeschlagen</strong>" +
-        "<br>" +
-        "<span>" + escapeHtml(message || "Unbekannter Fehler") + "</span>";
+        '<div class="warning-icon">!</div>' +
+        "<div><strong>Discord Login fehlgeschlagen</strong>" +
+        "<p>" + escapeHtml(message || "Unbekannter Fehler") + "</p></div>";
 }
 
 // =========================================================
@@ -441,12 +453,11 @@ async function loadSprites() {
             const spriteId = sprite.spriteId || sprite.id || "sprite-" + index;
             const variant = sprite.variant || "base";
             const family = prettyFamily(sprite.parent || sprite.family);
-            const label = variantLabel(variant);
 
             return {
                 id: spriteId + "-" + variant,
                 originalId: spriteId,
-                name: family + (variant === "base" ? "" : " \u00b7 " + label),
+                name: family + (variant === "base" ? "" : " \u00b7 " + variantLabel(variant)),
                 family: family,
                 familyRaw: sprite.parent || sprite.family || "",
                 rarity: sprite.rarity || "unbekannt",
@@ -691,6 +702,11 @@ function getVisibleSprites() {
 
 // =========================================================
 // RENDER SPRITES
+// (Markup exakt passend zur style.css:
+//  .sprite-card .owned / .sprite-image-container /
+//  .sprite-image / .owned-badge / .sprite-rarity
+//  .rarity-* / .sprite-info / .sprite-footer /
+//  .sprite-status)
 // =========================================================
 
 function renderSprites() {
@@ -701,8 +717,7 @@ function renderSprites() {
     const visibleSprites = getVisibleSprites();
 
     if (visibleCount) {
-        visibleCount.textContent =
-            visibleSprites.length + " Ergebnisse";
+        visibleCount.textContent = visibleSprites.length + " Ergebnisse";
     }
 
     spritesContainer.innerHTML = "";
@@ -710,9 +725,8 @@ function renderSprites() {
     if (visibleSprites.length === 0) {
         spritesContainer.innerHTML =
             '<div class="empty-state">' +
-            '<div class="empty-icon">🔎</div>' +
-            "<h3>Keine Sprites gefunden</h3>" +
-            "<p>Fuer deine aktuellen Filter wurden keine Sprites gefunden.</p>" +
+            "<strong>Keine Sprites gefunden</strong>" +
+            "<span>Fuer deine aktuellen Filter wurden keine Sprites gefunden.</span>" +
             "</div>";
         return;
     }
@@ -727,23 +741,19 @@ function renderSprites() {
 }
 
 function createSpriteCard(sprite) {
-    const card = document.createElement("article");
-    card.className =
-        "sprite-card rarity-" +
-        String(sprite.rarity || "unbekannt").toLowerCase();
-
     const isCollected = collectedSprites.includes(sprite.id);
-    if (isCollected) {
-        card.classList.add("collected");
-    }
 
-    // ------------------- IMAGE -------------------
+    const card = document.createElement("article");
+    card.className = "sprite-card" + (isCollected ? " owned" : "");
 
-    const imageWrapper = document.createElement("div");
-    imageWrapper.className = "sprite-image";
+    // ---------------- BILDCONTAINER ----------------
+
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "sprite-image-container";
 
     if (sprite.image) {
         const image = document.createElement("img");
+        image.className = "sprite-image";
         image.alt = sprite.name;
         image.loading = "lazy";
         image.decoding = "async";
@@ -758,84 +768,97 @@ function createSpriteCard(sprite) {
                 return;
             }
 
-            image.style.display = "none";
-            imageWrapper.classList.add("image-error");
+            image.remove();
 
-            if (!imageWrapper.querySelector(".image-error-text")) {
-                const errorText = document.createElement("span");
-                errorText.className = "image-error-text";
-                errorText.textContent = "Bild nicht verfuegbar";
-                imageWrapper.appendChild(errorText);
-            }
+            const errorText = document.createElement("span");
+            errorText.className = "image-error-text";
+            errorText.textContent = "Bild nicht verfuegbar";
+            imageContainer.appendChild(errorText);
         });
 
-        imageWrapper.appendChild(image);
+        imageContainer.appendChild(image);
     } else {
-        imageWrapper.classList.add("image-error");
-        imageWrapper.innerHTML =
-            '<span class="image-error-text">Kein Bild</span>';
+        const errorText = document.createElement("span");
+        errorText.className = "image-error-text";
+        errorText.textContent = "Kein Bild";
+        imageContainer.appendChild(errorText);
     }
 
-    // ------------------- COLLECT BUTTON -------------------
+    // ---------------- OWNED BADGE ----------------
 
-    const collectButton = document.createElement("button");
-    collectButton.className = "collect-button";
-    collectButton.type = "button";
-    collectButton.title = isCollected
-        ? "Aus Sammlung entfernen"
-        : "Zur Sammlung hinzufuegen";
-    collectButton.textContent = isCollected ? "\u2713" : "+";
+    const badge = document.createElement("div");
+    badge.className = "owned-badge";
+    badge.textContent = "\u2713";
+    imageContainer.appendChild(badge);
 
-    collectButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        toggleSprite(sprite.id);
-    });
+    card.appendChild(imageContainer);
 
-    // ------------------- INFO -------------------
+    // ---------------- INFO ----------------
 
     const info = document.createElement("div");
     info.className = "sprite-info";
+
+    const meta = document.createElement("div");
+    meta.className = "sprite-meta";
+
+    const rarityClass =
+        "rarity-" + String(sprite.rarity || "unbekannt").toLowerCase();
+
+    const rarity = document.createElement("span");
+    rarity.className = "sprite-rarity " + rarityClass;
+    rarity.textContent = sprite.rarity;
+
+    const id = document.createElement("span");
+    id.className = "sprite-id";
+    id.textContent = "#" + sprite.originalId;
+
+    meta.appendChild(rarity);
+    meta.appendChild(id);
 
     const name = document.createElement("h3");
     name.className = "sprite-name";
     name.textContent = sprite.name;
 
-    const meta = document.createElement("div");
-    meta.className = "sprite-meta";
-
-    const family = document.createElement("span");
+    const family = document.createElement("div");
     family.className = "sprite-family";
     family.textContent = sprite.family;
 
-    const rarity = document.createElement("span");
-    rarity.className = "sprite-rarity";
-    rarity.textContent = capitalize(sprite.rarity);
-
-    meta.appendChild(family);
-    meta.appendChild(rarity);
-
-    if (sprite.variant && sprite.variant !== "base") {
-        const variant = document.createElement("span");
-        variant.className = "sprite-variant";
-        variant.textContent = variantLabel(sprite.variant);
-        meta.appendChild(variant);
-    }
-
     const season = seasonLabel(sprite.season);
     if (season) {
-        const seasonEl = document.createElement("div");
-        seasonEl.className = "sprite-season";
-        seasonEl.textContent = season;
-        info.appendChild(seasonEl);
+        family.textContent = family.textContent + " \u00b7 " + season;
     }
 
-    info.appendChild(name);
-    info.appendChild(meta);
+    const footer = document.createElement("div");
+    footer.className = "sprite-footer";
 
-    card.appendChild(imageWrapper);
-    card.appendChild(collectButton);
+    const variant = document.createElement("span");
+    variant.className = "sprite-variant";
+    variant.textContent = variantLabel(sprite.variant);
+
+    const status = document.createElement("button");
+    status.className = "sprite-status";
+    status.type = "button";
+    status.textContent = isCollected ? "\u2713 Gesammelt" : "Sammeln";
+    status.title = isCollected
+        ? "Aus Sammlung entfernen"
+        : "Zur Sammlung hinzufuegen";
+
+    status.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleSprite(sprite.id);
+    });
+
+    footer.appendChild(variant);
+    footer.appendChild(status);
+
+    info.appendChild(meta);
+    info.appendChild(name);
+    info.appendChild(family);
+    info.appendChild(footer);
+
     card.appendChild(info);
 
+    // Ganze Karte klickbar
     card.addEventListener("click", () => {
         toggleSprite(sprite.id);
     });
@@ -880,7 +903,7 @@ function updateProgress() {
         totalCount.textContent = total;
     }
     if (progressNumber) {
-        progressNumber.textContent = percentage + "%";
+        progressNumber.textContent = percentage;
     }
     if (progressBarFill) {
         progressBarFill.style.width = percentage + "%";
