@@ -16,15 +16,12 @@
 
     <meta
         name="description"
-        content="Fortnite Sprite Collection – Sammle, entdecke und vervollständige deine Sprite-Sammlung."
+        content="Fortnite Sprite Collection – Sammle, entdecke und vervollständige deine persönliche Sprite-Sammlung."
     >
 
     <title>SpriteVault — Fortnite Sprite Collection</title>
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link
         rel="preconnect"
@@ -43,16 +40,23 @@
     >
 </head>
 
+
 <body>
 
     <div class="background">
+
         <div class="background-glow glow-one"></div>
+
         <div class="background-glow glow-two"></div>
+
         <div class="background-grid"></div>
+
     </div>
 
 
-    <!-- NAVBAR -->
+    <!-- =========================================
+         NAVBAR
+    ========================================== -->
 
     <header class="navbar">
 
@@ -66,8 +70,15 @@
             </div>
 
             <div class="brand-text">
-                <strong>SPRITE</strong>
-                <span>VAULT</span>
+
+                <strong>
+                    SPRITE
+                </strong>
+
+                <span>
+                    VAULT
+                </span>
+
             </div>
 
         </a>
@@ -86,6 +97,7 @@
 
         <div class="account-area">
 
+
             <!-- AUSGELOGGT -->
 
             <div
@@ -96,12 +108,15 @@
                 <button
                     id="login-btn"
                     class="discord-login"
+                    type="button"
                 >
+
                     <span class="discord-symbol">
                         ◉
                     </span>
 
                     Mit Discord anmelden
+
                 </button>
 
             </div>
@@ -121,6 +136,7 @@
                     alt="Discord Avatar"
                 >
 
+
                 <div class="user-info">
 
                     <strong id="user-name">
@@ -128,14 +144,16 @@
                     </strong>
 
                     <span>
-                        Sammlung
+                        Deine Sammlung
                     </span>
 
                 </div>
 
+
                 <button
                     id="logout-btn"
                     class="logout-btn"
+                    type="button"
                 >
                     Logout
                 </button>
@@ -150,40 +168,62 @@
     <main class="page">
 
 
-        <!-- HERO -->
+        <!-- =========================================
+             HERO
+        ========================================== -->
 
         <section class="hero">
 
             <div class="hero-content">
 
+
                 <div class="hero-pill">
+
                     <span></span>
+
                     LIVE SPRITE DATABASE
+
                 </div>
 
+
                 <h1>
+
                     Deine
-                    <span>Sprite</span>
+
+                    <span>
+                        Sprite
+                    </span>
+
                     Sammlung.
+
                 </h1>
+
 
                 <p>
                     Entdecke alle Fortnite Sprites,
                     Varianten und Raritäten.
-                    Markiere deine Sammlung und
-                    behalte deinen Fortschritt im Blick.
+                    Melde dich mit Discord an und
+                    verwalte deine persönliche Sammlung.
                 </p>
 
 
                 <div class="hero-actions">
 
+
                     <button
                         class="hero-button"
-                        onclick="document.getElementById('collection').scrollIntoView({ behavior: 'smooth' })"
+                        type="button"
+                        id="open-collection-btn"
                     >
+
                         Sammlung öffnen
-                        <span>↓</span>
+
+                        <span>
+                            ↓
+                        </span>
+
                     </button>
+
 
                     <div class="hero-status">
 
@@ -191,7 +231,7 @@
                             ✓
                         </span>
 
-                        Bilder werden automatisch geladen
+                        Deine Sammlung wird sicher gespeichert
 
                     </div>
 
@@ -203,29 +243,54 @@
             <div class="hero-visual">
 
                 <div class="orbit orbit-one"></div>
+
                 <div class="orbit orbit-two"></div>
 
+
                 <div class="hero-card hero-card-back">
+
                     <div class="fake-sprite"></div>
+
                 </div>
+
 
                 <div class="hero-card hero-card-main">
 
+
                     <div class="hero-card-top">
-                        <span>SPRITE</span>
-                        <span>MYTHIC</span>
+
+                        <span>
+                            SPRITE
+                        </span>
+
+                        <span>
+                            MYTHIC
+                        </span>
+
                     </div>
 
+
                     <div class="hero-sprite">
+
                         <div class="sprite-glow"></div>
+
                         <div class="sprite-placeholder">
                             ✦
                         </div>
+
                     </div>
 
+
                     <div class="hero-card-bottom">
-                        <strong>Collection</strong>
-                        <span>∞ Variants</span>
+
+                        <strong>
+                            Collection
+                        </strong>
+
+                        <span>
+                            ∞ Variants
+                        </span>
+
                     </div>
 
                 </div>
@@ -235,7 +300,9 @@
         </section>
 
 
-        <!-- LOGIN WARNING -->
+        <!-- =========================================
+             AUTH INFO
+        ========================================== -->
 
         <div
             id="auth-warning"
@@ -246,29 +313,35 @@
                 !
             </div>
 
-            <div>
+
+            <div class="warning-content">
 
                 <strong>
-                    Sammlung speichern
+                    Deine Sammlung ist geschützt
                 </strong>
 
                 <p>
                     Melde dich mit Discord an,
-                    damit dein Fortschritt gespeichert wird.
+                    um deine Sammlung zu sehen
+                    und deinen Fortschritt zu speichern.
                 </p>
 
             </div>
 
+
             <button
-                onclick="loginWithDiscord()"
+                id="warning-login-btn"
+                type="button"
             >
-                Anmelden
+                Mit Discord anmelden
             </button>
 
         </div>
 
 
-        <!-- COLLECTION STATS -->
+        <!-- =========================================
+             COLLECTION
+        ========================================== -->
 
         <section
             id="collection"
@@ -276,6 +349,7 @@
         >
 
             <div class="section-heading">
+
 
                 <div>
 
@@ -289,12 +363,16 @@
 
                 </div>
 
+
                 <span
                     id="database-status"
                     class="database-status"
                 >
+
                     <i></i>
-                    Lade Daten...
+
+                    Anmeldung erforderlich
+
                 </span>
 
             </div>
@@ -309,6 +387,7 @@
                         ✦
                     </div>
 
+
                     <div class="stat-content">
 
                         <span>
@@ -316,15 +395,19 @@
                         </span>
 
                         <strong id="collected-count">
-                            0
+                            —
                         </strong>
 
                         <small>
+
                             von
+
                             <b id="total-count">
                                 0
                             </b>
+
                             Sprites
+
                         </small>
 
                     </div>
@@ -339,10 +422,13 @@
                     </div>
 
                     <div class="stat-number">
+
                         <span id="progress-number">
-                            0
+                            —
                         </span>%
+
                     </div>
+
 
                     <div class="mini-progress">
 
@@ -399,9 +485,12 @@
         </section>
 
 
-        <!-- CONTROLS -->
+        <!-- =========================================
+             FILTER
+        ========================================== -->
 
         <section class="controls-section">
+
 
             <div class="search-wrapper">
 
@@ -409,12 +498,14 @@
                     ⌕
                 </span>
 
+
                 <input
                     id="search-input"
                     type="text"
                     placeholder="Sprite, Familie oder Variante suchen..."
                     autocomplete="off"
                 >
+
 
                 <kbd>
                     /
@@ -431,20 +522,25 @@
                     <button
                         class="filter-btn active"
                         data-filter="all"
+                        type="button"
                     >
                         Alle
                     </button>
 
+
                     <button
                         class="filter-btn"
                         data-filter="owned"
+                        type="button"
                     >
                         ✓ Gesammelt
                     </button>
 
+
                     <button
                         class="filter-btn"
                         data-filter="missing"
+                        type="button"
                     >
                         Fehlend
                     </button>
@@ -459,26 +555,6 @@
 
                     <option value="all">
                         Alle Raritäten
-                    </option>
-
-                    <option value="mythic">
-                        Mythic
-                    </option>
-
-                    <option value="legendary">
-                        Legendary
-                    </option>
-
-                    <option value="epic">
-                        Epic
-                    </option>
-
-                    <option value="rare">
-                        Rare
-                    </option>
-
-                    <option value="special">
-                        Special
                     </option>
 
                 </select>
@@ -524,9 +600,12 @@
         </section>
 
 
-        <!-- FAMILY NAV -->
+        <!-- =========================================
+             FAMILIES
+        ========================================== -->
 
         <section class="family-section">
+
 
             <div class="section-heading compact">
 
@@ -541,6 +620,7 @@
                     </h2>
 
                 </div>
+
 
                 <span
                     id="visible-count"
@@ -560,6 +640,7 @@
                 <button
                     class="family-btn active"
                     data-family="all"
+                    type="button"
                 >
                     Alle
                 </button>
@@ -569,9 +650,12 @@
         </section>
 
 
-        <!-- SPRITES -->
+        <!-- =========================================
+             SPRITES
+        ========================================== -->
 
         <section class="sprites-section">
+
 
             <div
                 id="loading-state"
@@ -609,7 +693,8 @@
                 </span>
 
                 <button
-                    onclick="loadSprites(true)"
+                    id="retry-btn"
+                    type="button"
                 >
                     Erneut versuchen
                 </button>
@@ -622,18 +707,78 @@
                 class="sprites-grid"
             ></div>
 
+
+            <!-- LOCK -->
+
+            <div
+                id="collection-lock"
+                class="collection-lock hidden"
+            >
+
+                <div class="collection-lock-card">
+
+
+                    <div class="collection-lock-icon">
+                        🔒
+                    </div>
+
+
+                    <span class="collection-lock-eyebrow">
+                        PRIVATE COLLECTION
+                    </span>
+
+
+                    <h3>
+                        Deine Sammlung ist gesperrt
+                    </h3>
+
+
+                    <p>
+                        Melde dich mit Discord an,
+                        um deine persönliche Sammlung
+                        zu sehen und zu verwalten.
+                    </p>
+
+
+                    <button
+                        id="collection-login-btn"
+                        class="collection-login-btn"
+                        type="button"
+                    >
+
+                        <span>
+                            ◉
+                        </span>
+
+                        Mit Discord anmelden
+
+                    </button>
+
+
+                    <small>
+                        Deine Sammlung gehört nur zu deinem Discord-Konto.
+                    </small>
+
+                </div>
+
+            </div>
+
         </section>
 
 
-        <!-- FOOTER -->
+        <!-- =========================================
+             FOOTER
+        ========================================== -->
 
         <footer>
+
 
             <div class="footer-brand">
 
                 <div class="brand-icon">
                     S
                 </div>
+
 
                 <div>
 
@@ -671,11 +816,7 @@
     </main>
 
 
-   
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
 
     <script src="script.js"></script>
 
