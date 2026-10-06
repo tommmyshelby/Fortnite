@@ -1,29 +1,5 @@
 "use strict";
 
-/*
-=========================================================
-SPRITEVAULT
-Fortnite Sprite Collection
-
-AUTH:
-Supabase + Discord OAuth
-
-DATA:
-public.user_sprites
-
-KEIN:
-- LocalStorage
-- user_metadata Collection
-- Discord Bot
-- Bot Commands
-=========================================================
-*/
-
-
-// =========================================================
-// SUPABASE
-// =========================================================
-
 const SUPABASE_URL =
     "https://ykbqnxqlbttqzaerqgnb.supabase.co";
 
@@ -39,9 +15,7 @@ const supabaseClient =
     );
 
 
-// =========================================================
-// CONFIG
-// =========================================================
+
 
 const WEBSITE_URL =
     "https://tommmyshelby.github.io/Fortnite/";
@@ -83,9 +57,6 @@ const VARIANT_LABELS = {
 };
 
 
-// =========================================================
-// STATE
-// =========================================================
 
 let currentUser = null;
 
