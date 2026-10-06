@@ -1,19 +1,23 @@
 "use strict";
 
 
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
 const SUPABASE_URL =
     "https://ykbqnxqlbttqzaerqgnb.supabase.co";
 
+
 const SUPABASE_ANON_KEY =
     "sb_publishable_nHZCz4UMQecRv8WmvIiZ6A_j_aQLRx_";
+
 
 const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
     );
-
-
 
 
 const WEBSITE_URL =
@@ -25,42 +29,50 @@ const WEBSITE_URL =
    ========================================================= */
 
 const SPRITES_SOURCES = [
+
     "https://cdn.jsdelivr.net/gh/valincius/fn-sprites@main/src/sprites.json",
+
     "https://raw.githubusercontent.com/valincius/fn-sprites/main/src/sprites.json"
+
 ];
 
-
-/* =========================================================
-   IMAGE PROXY
-   ========================================================= */
 
 const IMAGE_PROXY =
     "https://images.weserv.nl/?url=";
 
 
 /* =========================================================
-   VARIANTEN
+   VARIANTS
    ========================================================= */
 
 const VARIANT_LABELS = {
 
-    base: "Standard",
+    base:
+        "Standard",
 
-    gold: "Gold",
+    gold:
+        "Gold",
 
-    candy: "Candy",
+    candy:
+        "Candy",
 
-    galaxy: "Galaxy",
+    galaxy:
+        "Galaxy",
 
-    holofoil: "Holofoil",
+    holofoil:
+        "Holofoil",
 
-    cube: "Cube",
+    cube:
+        "Cube",
 
-    quack: "Quack",
+    quack:
+        "Quack",
 
-    gem: "Gem",
+    gem:
+        "Gem",
 
-    cheatmaster: "Schummelmeister"
+    cheatmaster:
+        "Schummelmeister"
 
 };
 
@@ -69,125 +81,161 @@ const VARIANT_LABELS = {
    STATE
    ========================================================= */
 
-let currentUser = null;
+let currentUser =
+    null;
 
-let sprites = [];
+let sprites =
+    [];
 
-let collectedSprites = [];
-
-
-/* =========================================================
-   FILTER STATE
-   ========================================================= */
-
-let currentFamily = "all";
-
-let currentSearch = "";
-
-let currentRarity = "all";
-
-let currentVariant = "all";
-
-let currentSort = "default";
-
-let currentCollectionFilter = "all";
+let collectedSprites =
+    [];
 
 
-/* =========================================================
-   DOM HELPER
-   ========================================================= */
+let currentFamily =
+    "all";
 
-const $ = selector =>
-    document.querySelector(selector);
+let currentSearch =
+    "";
+
+let currentRarity =
+    "all";
+
+let currentVariant =
+    "all";
+
+let currentSort =
+    "default";
+
+let currentCollectionFilter =
+    "all";
 
 
 /* =========================================================
-   DOM ELEMENTS
+   DOM
    ========================================================= */
+
+const $ =
+    selector =>
+        document.querySelector(
+            selector
+        );
+
 
 const loginBtn =
     $("#login-btn");
 
+
+const heroLoginBtn =
+    $("#hero-login-btn");
+
+
 const warningLoginBtn =
     $("#warning-login-btn");
+
 
 const collectionLoginBtn =
     $("#collection-login-btn");
 
+
 const logoutBtn =
     $("#logout-btn");
+
 
 const loggedInView =
     $("#logged-in-view");
 
+
 const loggedOutView =
     $("#logged-out-view");
+
 
 const userAvatar =
     $("#user-avatar");
 
+
 const userName =
     $("#user-name");
+
 
 const authWarning =
     $("#auth-warning");
 
+
 const databaseStatus =
     $("#database-status");
 
-const collectionLock =
-    $("#collection-lock");
 
 const collectedCount =
     $("#collected-count");
 
+
 const totalCount =
     $("#total-count");
+
 
 const progressNumber =
     $("#progress-number");
 
+
 const progressBarFill =
     $("#progress-bar-fill");
+
 
 const familyCount =
     $("#family-count");
 
+
 const variantCount =
     $("#variant-count");
+
+
+const heroProgress =
+    $("#hero-progress");
+
 
 const searchInput =
     $("#search-input");
 
+
 const rarityFilter =
     $("#rarity-filter");
+
 
 const variantFilter =
     $("#variant-filter");
 
+
 const sortFilter =
     $("#sort-filter");
+
 
 const familyList =
     $("#family-list");
 
+
 const spritesContainer =
     $("#sprites-container");
+
 
 const visibleCount =
     $("#visible-count");
 
+
 const loadingState =
     $("#loading-state");
+
 
 const errorState =
     $("#error-state");
 
+
 const errorMessage =
     $("#error-message");
 
+
 const retryBtn =
     $("#retry-btn");
+
 
 const openCollectionBtn =
     $("#open-collection-btn");
@@ -216,14 +264,15 @@ document.addEventListener(
 
 
 /* =========================================================
-   LUCIDE
+   ICONS
    ========================================================= */
 
 function initializeIcons() {
 
     if (
         window.lucide &&
-        typeof window.lucide.createIcons === "function"
+        typeof window.lucide.createIcons ===
+            "function"
     ) {
 
         window.lucide.createIcons();
@@ -276,7 +325,7 @@ async function initializeAuth() {
 
 
         supabaseClient.auth.onAuthStateChange(
-            async (
+            (
                 event,
                 session
             ) => {
@@ -289,7 +338,7 @@ async function initializeAuth() {
 
                 if (session?.user) {
 
-                    await handleLoggedInUser(
+                    void handleLoggedInUser(
                         session.user
                     );
 
@@ -324,21 +373,30 @@ async function initializeAuth() {
 async function loginWithDiscord() {
 
     const buttons = [
+
         loginBtn,
+
+        heroLoginBtn,
+
         warningLoginBtn,
+
         collectionLoginBtn
+
     ];
 
 
-    buttons.forEach(button => {
+    buttons.forEach(
+        button => {
 
-        if (button) {
+            if (button) {
 
-            button.disabled = true;
+                button.disabled =
+                    true;
+
+            }
 
         }
-
-    });
+    );
 
 
     try {
@@ -348,7 +406,8 @@ async function loginWithDiscord() {
         } =
             await supabaseClient.auth.signInWithOAuth({
 
-                provider: "discord",
+                provider:
+                    "discord",
 
                 options: {
 
@@ -386,15 +445,18 @@ async function loginWithDiscord() {
 
     } finally {
 
-        buttons.forEach(button => {
+        buttons.forEach(
+            button => {
 
-            if (button) {
+                if (button) {
 
-                button.disabled = false;
+                    button.disabled =
+                        false;
+
+                }
 
             }
-
-        });
+        );
 
     }
 
@@ -412,7 +474,8 @@ async function logout() {
     }
 
 
-    logoutBtn.disabled = true;
+    logoutBtn.disabled =
+        true;
 
 
     try {
@@ -435,9 +498,11 @@ async function logout() {
         }
 
 
-        currentUser = null;
+        currentUser =
+            null;
 
-        collectedSprites = [];
+        collectedSprites =
+            [];
 
 
         updateUserUI();
@@ -456,7 +521,8 @@ async function logout() {
 
     } finally {
 
-        logoutBtn.disabled = false;
+        logoutBtn.disabled =
+            false;
 
     }
 
@@ -470,6 +536,12 @@ async function logout() {
 function setupAuthButtons() {
 
     loginBtn?.addEventListener(
+        "click",
+        loginWithDiscord
+    );
+
+
+    heroLoginBtn?.addEventListener(
         "click",
         loginWithDiscord
     );
@@ -504,9 +576,12 @@ function setupAuthButtons() {
         () => {
 
             document
-                .getElementById("collection")
+                .getElementById(
+                    "collection"
+                )
                 ?.scrollIntoView({
-                    behavior: "smooth"
+                    behavior:
+                        "smooth"
                 });
 
         }
@@ -516,18 +591,15 @@ function setupAuthButtons() {
 
 
 /* =========================================================
-   LOGGED IN USER
+   LOGIN UI
    ========================================================= */
 
-async function handleLoggedInUser(user) {
+async function handleLoggedInUser(
+    user
+) {
 
-    currentUser = user;
-
-
-    console.log(
-        "Eingeloggt:",
-        user.id
-    );
+    currentUser =
+        user;
 
 
     updateUserUI();
@@ -537,15 +609,13 @@ async function handleLoggedInUser(user) {
 }
 
 
-/* =========================================================
-   LOGGED OUT USER
-   ========================================================= */
-
 function handleLoggedOutUser() {
 
-    currentUser = null;
+    currentUser =
+        null;
 
-    collectedSprites = [];
+    collectedSprites =
+        [];
 
 
     updateUserUI();
@@ -557,31 +627,57 @@ function handleLoggedOutUser() {
 }
 
 
-
+/* =========================================================
+   USER UI
+   ========================================================= */
 
 function updateUserUI() {
 
     if (currentUser) {
 
-        loggedOutView?.classList.add(
-            "hidden"
-        );
+        /*
+         * EINGELOGGT
+         */
 
         loggedInView?.classList.remove(
             "hidden"
         );
 
+
+        loggedOutView?.classList.add(
+            "hidden"
+        );
+
+
         authWarning?.classList.add(
             "hidden"
         );
 
-        collectionLock?.classList.add(
+
+        /*
+         * ALLE LOGIN BUTTONS VERSTECKEN
+         */
+
+        loginBtn?.classList.add(
+            "hidden"
+        );
+
+        heroLoginBtn?.classList.add(
+            "hidden"
+        );
+
+        warningLoginBtn?.classList.add(
+            "hidden"
+        );
+
+        collectionLoginBtn?.classList.add(
             "hidden"
         );
 
 
         const metadata =
-            currentUser.user_metadata || {};
+            currentUser.user_metadata ||
+            {};
 
 
         const name =
@@ -621,19 +717,42 @@ function updateUserUI() {
 
     } else {
 
-        loggedOutView?.classList.remove(
-            "hidden"
-        );
+        /*
+         * AUSGELOGGT
+         */
 
         loggedInView?.classList.add(
             "hidden"
         );
 
+
+        loggedOutView?.classList.remove(
+            "hidden"
+        );
+
+
         authWarning?.classList.remove(
             "hidden"
         );
 
-        collectionLock?.classList.remove(
+
+        /*
+         * LOGIN BUTTONS WIEDER ZEIGEN
+         */
+
+        loginBtn?.classList.remove(
+            "hidden"
+        );
+
+        heroLoginBtn?.classList.remove(
+            "hidden"
+        );
+
+        warningLoginBtn?.classList.remove(
+            "hidden"
+        );
+
+        collectionLoginBtn?.classList.remove(
             "hidden"
         );
 
@@ -651,6 +770,9 @@ function updateUserUI() {
 }
 
 
+/* =========================================================
+   DATABASE STATUS
+   ========================================================= */
 
 function setDatabaseStatus(
     text,
@@ -662,39 +784,30 @@ function setDatabaseStatus(
     }
 
 
-    databaseStatus.innerHTML = "";
-
-
-    const indicator =
-        document.createElement("span");
-
-
-    indicator.className =
-        "database-status-dot";
-
-
-    if (!online) {
-
-        indicator.style.background =
-            "var(--muted)";
-
-        indicator.style.boxShadow =
-            "none";
-
-    }
-
-
-    databaseStatus.append(
-        indicator,
-        document.createTextNode(text)
+    databaseStatus.classList.toggle(
+        "online",
+        online
     );
+
+
+    databaseStatus.innerHTML = `
+
+        <span class="database-status-dot"></span>
+
+        ${escapeHtml(text)}
+
+    `;
 
 }
 
 
+/* =========================================================
+   AUTH ERROR
+   ========================================================= */
 
-
-function showAuthError(message) {
+function showAuthError(
+    message
+) {
 
     if (!authWarning) {
         return;
@@ -706,13 +819,15 @@ function showAuthError(message) {
     );
 
 
-    const paragraph =
-        authWarning.querySelector("p");
+    const text =
+        authWarning.querySelector(
+            ".warning-text"
+        );
 
 
-    if (paragraph) {
+    if (text) {
 
-        paragraph.textContent =
+        text.textContent =
             message ||
             "Der Discord Login ist fehlgeschlagen.";
 
@@ -721,12 +836,16 @@ function showAuthError(message) {
 }
 
 
+/* =========================================================
+   LOAD COLLECTION
+   ========================================================= */
 
 async function loadCollection() {
 
     if (!currentUser) {
 
-        collectedSprites = [];
+        collectedSprites =
+            [];
 
         updateProgress();
 
@@ -744,7 +863,9 @@ async function loadCollection() {
             error
         } =
             await supabaseClient
-                .from("user_sprites")
+                .from(
+                    "user_sprites"
+                )
                 .select(
                     "sprite_id, collected"
                 )
@@ -766,21 +887,12 @@ async function loadCollection() {
         collectedSprites =
             Array.isArray(data)
                 ? data
-                    .map(row => row.sprite_id)
+                    .map(
+                        row =>
+                            row.sprite_id
+                    )
                     .filter(Boolean)
                 : [];
-
-
-        console.log(
-            "Eigene Sammlung:",
-            collectedSprites
-        );
-
-
-        setDatabaseStatus(
-            "Sammlung geladen",
-            true
-        );
 
 
         updateProgress();
@@ -796,11 +908,12 @@ async function loadCollection() {
         );
 
 
-        collectedSprites = [];
+        collectedSprites =
+            [];
 
 
         setDatabaseStatus(
-            "Sammlung konnte nicht geladen werden",
+            "Collection konnte nicht geladen werden",
             false
         );
 
@@ -814,6 +927,9 @@ async function loadCollection() {
 }
 
 
+/* =========================================================
+   SAVE SPRITE
+   ========================================================= */
 
 async function saveSprite(
     spriteId,
@@ -832,17 +948,18 @@ async function saveSprite(
     try {
 
         const {
-            data,
             error
         } =
             await supabaseClient.rpc(
                 "set_sprite_collected",
                 {
+
                     p_sprite_id:
                         spriteId,
 
                     p_collected:
                         collected
+
                 }
             );
 
@@ -850,12 +967,6 @@ async function saveSprite(
         if (error) {
             throw error;
         }
-
-
-        console.log(
-            "Sprite gespeichert:",
-            data
-        );
 
 
         return true;
@@ -882,9 +993,13 @@ async function saveSprite(
 }
 
 
+/* =========================================================
+   TOGGLE SPRITE
+   ========================================================= */
 
-
-async function toggleSprite(sprite) {
+async function toggleSprite(
+    sprite
+) {
 
     if (!currentUser) {
 
@@ -905,7 +1020,10 @@ async function toggleSprite(sprite) {
         );
 
 
-  
+    /*
+     * OPTIMISTIC UPDATE
+     */
+
     if (wasCollected) {
 
         collectedSprites =
@@ -937,7 +1055,9 @@ async function toggleSprite(sprite) {
 
     if (!success) {
 
-   
+        /*
+         * ROLLBACK
+         */
 
         if (wasCollected) {
 
@@ -973,11 +1093,14 @@ async function toggleSprite(sprite) {
 }
 
 
-
+/* =========================================================
+   FETCH SPRITE DATA
+   ========================================================= */
 
 async function fetchSpriteSource() {
 
-    let lastError = null;
+    let lastError =
+        null;
 
 
     for (
@@ -991,7 +1114,8 @@ async function fetchSpriteSource() {
                 await fetch(
                     source,
                     {
-                        cache: "no-store"
+                        cache:
+                            "no-store"
                     }
                 );
 
@@ -1035,6 +1159,9 @@ async function fetchSpriteSource() {
 }
 
 
+/* =========================================================
+   LOAD SPRITES
+   ========================================================= */
 
 async function loadSprites() {
 
@@ -1068,9 +1195,9 @@ async function loadSprites() {
 
         populateFamilies();
 
-        updateProgress();
-
         hideLoading();
+
+        updateProgress();
 
         renderSprites();
 
@@ -1093,22 +1220,14 @@ async function loadSprites() {
 }
 
 
-
+/* =========================================================
+   NORMALIZE SPRITE
+   ========================================================= */
 
 function normalizeSprite(
     sprite,
     index
 ) {
-
-    if (
-        !sprite ||
-        typeof sprite !== "object"
-    ) {
-
-        return null;
-
-    }
-
 
     const originalId =
         String(
@@ -1126,24 +1245,18 @@ function normalizeSprite(
         );
 
 
-
-
     const databaseId =
         variant === "base"
             ? originalId
             : `${originalId}-${variant}`;
 
 
-    const rawFamily =
-        sprite.parent ||
-        sprite.family ||
-        sprite.name ||
-        originalId;
-
-
     const family =
         prettyFamily(
-            rawFamily
+            sprite.parent ||
+            sprite.family ||
+            sprite.name ||
+            originalId
         );
 
 
@@ -1186,175 +1299,124 @@ function normalizeSprite(
 }
 
 
-
+/* =========================================================
+   FILTER OPTIONS
+   ========================================================= */
 
 function populateFilters() {
 
-    populateRarityFilter();
+    if (rarityFilter) {
 
-    populateVariantFilter();
+        const rarities =
+            [
+                ...new Set(
+                    sprites
+                        .map(
+                            sprite =>
+                                sprite.rarity
+                        )
+                        .filter(Boolean)
+                )
+            ]
+                .sort(
+                    (a,b) =>
+                        a.localeCompare(
+                            b
+                        )
+                );
 
-}
+
+        rarityFilter.innerHTML =
+            `<option value="all">Alle Raritäten</option>`;
 
 
+        rarities.forEach(
+            rarity => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
 
 
-function populateRarityFilter() {
+                option.value =
+                    rarity;
 
-    if (!rarityFilter) {
-        return;
+                option.textContent =
+                    capitalize(
+                        rarity
+                    );
+
+
+                rarityFilter.appendChild(
+                    option
+                );
+
+            }
+        );
+
     }
 
 
-    const rarities =
-        [
-            ...new Set(
-                sprites
-                    .map(
-                        sprite =>
-                            sprite.rarity
-                    )
-                    .filter(Boolean)
-            )
-        ]
-        .sort(
-            (a, b) =>
-                String(a).localeCompare(
-                    String(b)
+    if (variantFilter) {
+
+        const variants =
+            [
+                ...new Set(
+                    sprites
+                        .map(
+                            sprite =>
+                                sprite.variant
+                        )
+                        .filter(Boolean)
                 )
+            ]
+                .sort(
+                    (a,b) =>
+                        variantLabel(a)
+                            .localeCompare(
+                                variantLabel(b)
+                            )
+                );
+
+
+        variantFilter.innerHTML =
+            `<option value="all">Alle Varianten</option>`;
+
+
+        variants.forEach(
+            variant => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    variant;
+
+                option.textContent =
+                    variantLabel(
+                        variant
+                    );
+
+
+                variantFilter.appendChild(
+                    option
+                );
+
+            }
         );
 
-
-    rarityFilter.innerHTML = "";
-
-
-    const allOption =
-        document.createElement("option");
-
-
-    allOption.value =
-        "all";
-
-    allOption.textContent =
-        "Alle Raritäten";
-
-
-    rarityFilter.appendChild(
-        allOption
-    );
-
-
-    rarities.forEach(
-        rarity => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                rarity;
-
-            option.textContent =
-                capitalize(
-                    rarity
-                );
-
-
-            rarityFilter.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    rarityFilter.value =
-        currentRarity;
-
-}
-
-
-
-
-function populateVariantFilter() {
-
-    if (!variantFilter) {
-        return;
     }
 
-
-    const variants =
-        [
-            ...new Set(
-                sprites
-                    .map(
-                        sprite =>
-                            sprite.variant
-                    )
-                    .filter(Boolean)
-            )
-        ]
-        .sort(
-            (a, b) =>
-                String(a).localeCompare(
-                    String(b)
-                )
-        );
-
-
-    variantFilter.innerHTML = "";
-
-
-    const allOption =
-        document.createElement("option");
-
-
-    allOption.value =
-        "all";
-
-    allOption.textContent =
-        "Alle Varianten";
-
-
-    variantFilter.appendChild(
-        allOption
-    );
-
-
-    variants.forEach(
-        variant => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                variant;
-
-            option.textContent =
-                variantLabel(
-                    variant
-                );
-
-
-            variantFilter.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    variantFilter.value =
-        currentVariant;
-
 }
 
 
+/* =========================================================
+   FAMILIES
+   ========================================================= */
 
 function populateFamilies() {
 
@@ -1363,7 +1425,8 @@ function populateFamilies() {
     }
 
 
-    familyList.innerHTML = "";
+    familyList.innerHTML =
+        "";
 
 
     familyList.appendChild(
@@ -1385,17 +1448,17 @@ function populateFamilies() {
                     .filter(Boolean)
             )
         ]
-        .sort(
-            (a, b) =>
-                a.localeCompare(
-                    b,
-                    undefined,
-                    {
-                        sensitivity:
-                            "base"
-                    }
-                )
-        );
+            .sort(
+                (a,b) =>
+                    a.localeCompare(
+                        b,
+                        undefined,
+                        {
+                            sensitivity:
+                                "base"
+                        }
+                    )
+            );
 
 
     families.forEach(
@@ -1412,8 +1475,6 @@ function populateFamilies() {
     );
 
 }
-
-
 
 
 function createFamilyButton(
@@ -1435,13 +1496,8 @@ function createFamilyButton(
         "family-btn";
 
 
-    button.dataset.family =
-        value;
-
-
     if (
-        value ===
-        currentFamily
+        value === currentFamily
     ) {
 
         button.classList.add(
@@ -1449,6 +1505,10 @@ function createFamilyButton(
         );
 
     }
+
+
+    button.dataset.family =
+        value;
 
 
     button.textContent =
@@ -1468,8 +1528,8 @@ function createFamilyButton(
                     ".family-btn"
                 )
                 .forEach(
-                    btn =>
-                        btn.classList.remove(
+                    item =>
+                        item.classList.remove(
                             "active"
                         )
                 );
@@ -1491,7 +1551,9 @@ function createFamilyButton(
 }
 
 
-
+/* =========================================================
+   CONTROLS
+   ========================================================= */
 
 function setupControls() {
 
@@ -1518,7 +1580,6 @@ function setupControls() {
             currentRarity =
                 rarityFilter.value;
 
-
             renderSprites();
 
         }
@@ -1532,7 +1593,6 @@ function setupControls() {
             currentVariant =
                 variantFilter.value;
 
-
             renderSprites();
 
         }
@@ -1545,7 +1605,6 @@ function setupControls() {
 
             currentSort =
                 sortFilter.value;
-
 
             renderSprites();
 
@@ -1574,8 +1633,8 @@ function setupControls() {
                                 ".filter-btn"
                             )
                             .forEach(
-                                btn =>
-                                    btn.classList.remove(
+                                item =>
+                                    item.classList.remove(
                                         "active"
                                     )
                             );
@@ -1593,8 +1652,6 @@ function setupControls() {
 
             }
         );
-
-
 
 
     document.addEventListener(
@@ -1620,19 +1677,13 @@ function setupControls() {
                     searchInput
             ) {
 
-                if (searchInput) {
-
-                    searchInput.value =
-                        "";
-
-                }
-
+                searchInput.value =
+                    "";
 
                 currentSearch =
                     "";
 
-
-                searchInput?.blur();
+                searchInput.blur();
 
                 renderSprites();
 
@@ -1644,15 +1695,15 @@ function setupControls() {
 }
 
 
-
+/* =========================================================
+   FILTER SPRITES
+   ========================================================= */
 
 function getVisibleSprites() {
 
     let result =
         [...sprites];
 
-
-  
 
     if (
         currentCollectionFilter ===
@@ -1670,8 +1721,6 @@ function getVisibleSprites() {
     }
 
 
-  
-
     if (
         currentCollectionFilter ===
         "missing"
@@ -1688,7 +1737,6 @@ function getVisibleSprites() {
     }
 
 
-
     if (currentSearch) {
 
         result =
@@ -1697,22 +1745,31 @@ function getVisibleSprites() {
 
                     const searchable =
                         [
+
                             sprite.name,
+
                             sprite.family,
+
                             sprite.familyRaw,
+
                             sprite.rarity,
+
                             sprite.variant,
+
                             variantLabel(
                                 sprite.variant
                             ),
+
                             sprite.originalId,
+
                             seasonLabel(
                                 sprite.season
                             )
+
                         ]
-                        .filter(Boolean)
-                        .join(" ")
-                        .toLowerCase();
+                            .filter(Boolean)
+                            .join(" ")
+                            .toLowerCase();
 
 
                     return searchable.includes(
@@ -1723,8 +1780,6 @@ function getVisibleSprites() {
             );
 
     }
-
-
 
 
     if (
@@ -1742,7 +1797,6 @@ function getVisibleSprites() {
     }
 
 
- 
     if (
         currentRarity !==
         "all"
@@ -1758,7 +1812,6 @@ function getVisibleSprites() {
     }
 
 
-  
     if (
         currentVariant !==
         "all"
@@ -1774,14 +1827,14 @@ function getVisibleSprites() {
     }
 
 
-  
-
-    switch (currentSort) {
+    switch (
+        currentSort
+    ) {
 
         case "name":
 
             result.sort(
-                (a, b) =>
+                (a,b) =>
                     a.name.localeCompare(
                         b.name,
                         undefined,
@@ -1801,7 +1854,7 @@ function getVisibleSprites() {
         case "rarity":
 
             result.sort(
-                (a, b) =>
+                (a,b) =>
                     a.rarity.localeCompare(
                         b.rarity,
                         undefined,
@@ -1818,7 +1871,7 @@ function getVisibleSprites() {
         case "variant":
 
             result.sort(
-                (a, b) =>
+                (a,b) =>
                     variantLabel(
                         a.variant
                     ).localeCompare(
@@ -1833,10 +1886,8 @@ function getVisibleSprites() {
 
         default:
 
-        
-
             result.sort(
-                (a, b) => {
+                (a,b) => {
 
                     const familyCompare =
                         a.family.localeCompare(
@@ -1850,7 +1901,8 @@ function getVisibleSprites() {
 
 
                     if (
-                        familyCompare !== 0
+                        familyCompare !==
+                        0
                     ) {
 
                         return familyCompare;
@@ -1879,6 +1931,10 @@ function getVisibleSprites() {
 }
 
 
+/* =========================================================
+   RENDER
+   ========================================================= */
+
 function renderSprites() {
 
     if (!spritesContainer) {
@@ -1886,54 +1942,46 @@ function renderSprites() {
     }
 
 
-    const visibleSprites =
+    const visible =
         getVisibleSprites();
 
 
-    if (visibleCount) {
-
-        visibleCount.textContent =
-            `${visibleSprites.length} Ergebnisse`;
-
-    }
+    visibleCount.textContent =
+        `${visible.length} Ergebnisse`;
 
 
     spritesContainer.innerHTML =
         "";
 
 
-    if (
-        visibleSprites.length === 0
-    ) {
+    if (!visible.length) {
 
-        const empty =
-            document.createElement(
-                "div"
-            );
+        spritesContainer.innerHTML = `
 
+            <div class="empty-state">
 
-        empty.className =
-            "empty-state";
+                <div class="state-icon">
 
+                    <i data-lucide="search-x"></i>
 
-        empty.innerHTML = `
-            <div class="state-icon">
-                <i data-lucide="search-x"></i>
+                </div>
+
+                <div class="state-title">
+
+                    Keine Sprites gefunden
+
+                </div>
+
+                <div class="state-description">
+
+                    Für deine aktuellen Filter
+                    wurden keine Sprites gefunden.
+
+                </div>
+
             </div>
 
-            <div class="state-title">
-                Keine Sprites gefunden
-            </div>
-
-            <div class="state-description">
-                Für deine aktuellen Filter wurden keine Sprites gefunden.
-            </div>
         `;
-
-
-        spritesContainer.appendChild(
-            empty
-        );
 
 
         initializeIcons();
@@ -1943,20 +1991,20 @@ function renderSprites() {
     }
 
 
- 
+    /*
+     * NACH FAMILIEN GRUPPIEREN
+     */
 
     const groups =
         new Map();
 
 
-    visibleSprites.forEach(
+    visible.forEach(
         sprite => {
 
-            if (
-                !groups.has(
-                    sprite.family
-                )
-            ) {
+            if (!groups.has(
+                sprite.family
+            )) {
 
                 groups.set(
                     sprite.family,
@@ -1978,22 +2026,21 @@ function renderSprites() {
         document.createDocumentFragment();
 
 
-    for (
-        const [
-            family,
-            familySprites
-        ]
-        of groups
-    ) {
+    groups.forEach(
+        (
+            groupSprites,
+            family
+        ) => {
 
-        fragment.appendChild(
-            createFamilyGroup(
-                family,
-                familySprites
-            )
-        );
+            fragment.appendChild(
+                createFamilyGroup(
+                    family,
+                    groupSprites
+                )
+            );
 
-    }
+        }
+    );
 
 
     spritesContainer.appendChild(
@@ -2006,26 +2053,23 @@ function renderSprites() {
 }
 
 
-
+/* =========================================================
+   FAMILY GROUP
+   ========================================================= */
 
 function createFamilyGroup(
     family,
-    familySprites
+    groupSprites
 ) {
 
-    const group =
+    const section =
         document.createElement(
             "section"
         );
 
 
-    group.className =
+    section.className =
         "family-group";
-
-
-    group.dataset.family =
-        family;
-
 
 
     const allFamilySprites =
@@ -2036,7 +2080,7 @@ function createFamilyGroup(
         );
 
 
-    const collected =
+    const familyCollected =
         allFamilySprites.filter(
             sprite =>
                 collectedSprites.includes(
@@ -2045,173 +2089,79 @@ function createFamilyGroup(
         ).length;
 
 
-    const total =
-        allFamilySprites.length;
-
-
-    const percentage =
-        total > 0
+    const familyPercentage =
+        allFamilySprites.length
             ? Math.round(
-                (collected / total) *
-                100
+                (
+                    familyCollected /
+                    allFamilySprites.length
+                ) * 100
             )
             : 0;
 
 
+    section.innerHTML = `
+
+        <div class="family-group-header">
+
+            <div class="family-group-title-wrap">
+
+                <div class="family-group-eyebrow">
+                    SPRITE-FAMILIE
+                </div>
+
+                <div class="family-group-title">
+                    ${escapeHtml(family)}
+                </div>
+
+                <div class="family-group-info">
+                    ${allFamilySprites.length}
+                    Varianten ·
+                    ${familyCollected}
+                    gesammelt
+                </div>
+
+            </div>
 
 
-    const header =
-        document.createElement(
-            "div"
+            <div class="family-group-progress">
+
+                <div class="family-group-progress-text">
+
+                    ${familyPercentage}%
+
+                </div>
+
+                <div class="family-progress-track">
+
+                    <div
+                        class="family-progress-fill"
+                        style="width:${familyPercentage}%"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="family-variant-grid"></div>
+
+    `;
+
+
+    const grid =
+        section.querySelector(
+            ".family-variant-grid"
         );
 
 
-    header.className =
-        "family-group-header";
-
-
-    const heading =
-        document.createElement(
-            "div"
-        );
-
-
-    heading.className =
-        "family-group-heading";
-
-
-    const eyebrow =
-        document.createElement(
-            "div"
-        );
-
-
-    eyebrow.className =
-        "family-group-eyebrow";
-
-
-    eyebrow.textContent =
-        "SPRITE FAMILIE";
-
-
-    const title =
-        document.createElement(
-            "h3"
-        );
-
-
-    title.className =
-        "family-group-title";
-
-
-    title.textContent =
-        family;
-
-
-    const description =
-        document.createElement(
-            "div"
-        );
-
-
-    description.className =
-        "family-group-description";
-
-
-    description.textContent =
-        `${total} Variante${total === 1 ? "" : "n"}`;
-
-
-    heading.append(
-        eyebrow,
-        title,
-        description
-    );
-
-
-
-
-    const progress =
-        document.createElement(
-            "div"
-        );
-
-
-    progress.className =
-        "family-group-progress";
-
-
-    const progressText =
-        document.createElement(
-            "div"
-        );
-
-
-    progressText.className =
-        "family-group-progress-text";
-
-
-    progressText.textContent =
-        `${collected} / ${total} gesammelt`;
-
-
-    const progressTrack =
-        document.createElement(
-            "div"
-        );
-
-
-    progressTrack.className =
-        "family-progress-track";
-
-
-    const progressFill =
-        document.createElement(
-            "div"
-        );
-
-
-    progressFill.className =
-        "family-progress-fill";
-
-
-    progressFill.style.width =
-        `${percentage}%`;
-
-
-    progressTrack.appendChild(
-        progressFill
-    );
-
-
-    progress.append(
-        progressText,
-        progressTrack
-    );
-
-
-    header.append(
-        heading,
-        progress
-    );
-
-
-
-    const variantGrid =
-        document.createElement(
-            "div"
-        );
-
-
-    variantGrid.className =
-        "family-variant-grid";
-
-
-    familySprites.forEach(
+    groupSprites.forEach(
         sprite => {
 
-            variantGrid.appendChild(
-                createVariantCard(
+            grid.appendChild(
+                createSpriteCard(
                     sprite
                 )
             );
@@ -2220,293 +2170,14 @@ function createFamilyGroup(
     );
 
 
-    group.append(
-        header,
-        variantGrid
-    );
-
-
-    return group;
+    return section;
 
 }
 
 
-
-
-function createVariantCard(
-    sprite
-) {
-
-    const collected =
-        collectedSprites.includes(
-            sprite.id
-        );
-
-
-    const card =
-        document.createElement(
-            "button"
-        );
-
-
-    card.type =
-        "button";
-
-
-    card.className =
-        "family-variant-card";
-
-
-    if (collected) {
-
-        card.classList.add(
-            "collected"
-        );
-
-    }
-
-
-    card.title =
-        `${sprite.family} – ${variantLabel(sprite.variant)}`;
-
-
-    
-    const imageWrap =
-        document.createElement(
-            "span"
-        );
-
-
-    imageWrap.className =
-        "family-variant-image-wrap";
-
-
-    if (sprite.image) {
-
-        const image =
-            document.createElement(
-                "img"
-            );
-
-
-        image.className =
-            "family-variant-image";
-
-
-        image.alt =
-            `${sprite.name} – ${variantLabel(sprite.variant)}`;
-
-
-        image.loading =
-            "lazy";
-
-
-        image.decoding =
-            "async";
-
-
-        image.referrerPolicy =
-            "no-referrer";
-
-
-        image.src =
-            sprite.image;
-
-
-        image.addEventListener(
-            "error",
-            () => {
-
-                if (
-                    !image.dataset.proxy
-                ) {
-
-                    image.dataset.proxy =
-                        "true";
-
-
-                    image.src =
-                        IMAGE_PROXY +
-                        encodeURIComponent(
-                            sprite.image
-                        );
-
-
-                    return;
-
-                }
-
-
-                image.remove();
-
-
-                const fallback =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                fallback.className =
-                    "image-error-text";
-
-
-                fallback.textContent =
-                    "Bild nicht verfügbar";
-
-
-                imageWrap.appendChild(
-                    fallback
-                );
-
-            }
-        );
-
-
-        imageWrap.appendChild(
-            image
-        );
-
-    }
-
-
-
-
-    const state =
-        document.createElement(
-            "span"
-        );
-
-
-    state.className =
-        "family-variant-state";
-
-
-    if (collected) {
-
-        state.innerHTML =
-            `<i data-lucide="check"></i>`;
-
-    } else {
-
-        state.innerHTML =
-            `<i data-lucide="plus"></i>`;
-
-    }
-
-
-    imageWrap.appendChild(
-        state
-    );
-
-
- 
-
-    const content =
-        document.createElement(
-            "span"
-        );
-
-
-    content.className =
-        "family-variant-content";
-
-
-    const variant =
-        document.createElement(
-            "span"
-        );
-
-
-    variant.className =
-        "family-variant-name";
-
-
-    variant.textContent =
-        variantLabel(
-            sprite.variant
-        );
-
-
-    const meta =
-        document.createElement(
-            "span"
-        );
-
-
-    meta.className =
-        "family-variant-meta";
-
-
-    const rarity =
-        document.createElement(
-            "span"
-        );
-
-
-    rarity.className =
-        "family-variant-rarity";
-
-
-    rarity.textContent =
-        capitalize(
-            sprite.rarity ||
-            "unbekannt"
-        );
-
-
-    const season =
-        document.createElement(
-            "span"
-        );
-
-
-    season.className =
-        "family-variant-type";
-
-
-    season.textContent =
-        seasonLabel(
-            sprite.season
-        ) ||
-        "";
-
-
-    meta.append(
-        rarity,
-        season
-    );
-
-
-    content.append(
-        variant,
-        meta
-    );
-
-
-    card.append(
-        imageWrap,
-        content
-    );
-
-
-    card.addEventListener(
-        "click",
-        () => {
-
-            toggleSprite(
-                sprite
-            );
-
-        }
-    );
-
-
-    return card;
-
-}
-
-
-
+/* =========================================================
+   SPRITE CARD
+   ========================================================= */
 
 function createSpriteCard(
     sprite
@@ -2525,17 +2196,26 @@ function createSpriteCard(
 
 
     card.className =
-        `sprite-card${collected ? " owned" : ""}`;
+        "family-variant-card" +
+        (
+            collected
+                ? " collected"
+                : ""
+        );
 
 
-    const imageContainer =
+    /*
+     * IMAGE
+     */
+
+    const imageWrap =
         document.createElement(
             "div"
         );
 
 
-    imageContainer.className =
-        "sprite-image-container";
+    imageWrap.className =
+        "family-variant-image-wrap";
 
 
     if (sprite.image) {
@@ -2547,7 +2227,7 @@ function createSpriteCard(
 
 
         image.className =
-            "sprite-image";
+            "family-variant-image";
 
 
         image.alt =
@@ -2588,7 +2268,6 @@ function createSpriteCard(
                             sprite.image
                         );
 
-
                     return;
 
                 }
@@ -2597,108 +2276,77 @@ function createSpriteCard(
                 image.remove();
 
 
-                const errorText =
+                const text =
                     document.createElement(
                         "span"
                     );
 
 
-                errorText.className =
+                text.className =
                     "image-error-text";
 
 
-                errorText.textContent =
+                text.textContent =
                     "Bild nicht verfügbar";
 
 
-                imageContainer.appendChild(
-                    errorText
+                imageWrap.appendChild(
+                    text
                 );
 
             }
         );
 
 
-        imageContainer.appendChild(
+        imageWrap.appendChild(
             image
         );
 
     }
 
 
-    const badge =
+    /*
+     * STATUS
+     */
+
+    const state =
         document.createElement(
             "div"
         );
 
 
-    badge.className =
-        "owned-badge";
+    state.className =
+        "family-variant-state";
 
 
-    badge.textContent =
-        "✓";
+    state.innerHTML =
+        collected
+            ? `<i data-lucide="check"></i>`
+            : `<i data-lucide="plus"></i>`;
 
 
-    imageContainer.appendChild(
-        badge
+    imageWrap.appendChild(
+        state
     );
 
 
-    const info =
-        document.createElement(
-            "div"
-        );
-
-
-    info.className =
-        "sprite-info";
-
-
-    const meta =
-        document.createElement(
-            "div"
-        );
-
-
-    meta.className =
-        "sprite-meta";
-
-
-    const rarity =
-        document.createElement(
-            "span"
-        );
-
-
-    rarity.className =
-        "sprite-rarity";
-
-
-    rarity.textContent =
-        capitalize(
-            sprite.rarity
-        );
-
-
-    const id =
-        document.createElement(
-            "span"
-        );
-
-
-    id.className =
-        "sprite-id";
-
-
-    id.textContent =
-        `#${sprite.id}`;
-
-
-    meta.append(
-        rarity,
-        id
+    card.appendChild(
+        imageWrap
     );
+
+
+    /*
+     * CONTENT
+     */
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+
+    content.className =
+        "family-variant-content";
 
 
     const name =
@@ -2708,35 +2356,37 @@ function createSpriteCard(
 
 
     name.className =
-        "sprite-name";
+        "family-variant-name";
 
 
     name.textContent =
         sprite.name;
 
 
-    const family =
+    const meta =
         document.createElement(
             "div"
         );
 
 
-    family.className =
-        "sprite-family";
+    meta.className =
+        "family-variant-meta";
 
 
-    family.textContent =
-        sprite.family;
-
-
-    const footer =
+    const rarity =
         document.createElement(
-            "div"
+            "span"
         );
 
 
-    footer.className =
-        "sprite-footer";
+    rarity.className =
+        "family-variant-rarity";
+
+
+    rarity.textContent =
+        capitalize(
+            sprite.rarity
+        );
 
 
     const variant =
@@ -2746,7 +2396,7 @@ function createSpriteCard(
 
 
     variant.className =
-        "sprite-variant";
+        "family-variant-type";
 
 
     variant.textContent =
@@ -2755,48 +2405,42 @@ function createSpriteCard(
         );
 
 
-    const status =
-        document.createElement(
-            "span"
-        );
+    meta.appendChild(
+        rarity
+    );
 
-
-    status.className =
-        "sprite-status";
-
-
-    status.textContent =
-        collected
-            ? "Gesammelt"
-            : "Fehlt";
-
-
-    footer.append(
-        variant,
-        status
+    meta.appendChild(
+        variant
     );
 
 
-    info.append(
-        meta,
-        name,
-        family,
-        footer
+    content.appendChild(
+        name
+    );
+
+    content.appendChild(
+        meta
     );
 
 
-    card.append(
-        imageContainer,
-        info
+    card.appendChild(
+        content
     );
 
+
+    /*
+     * CLICK
+     */
 
     card.addEventListener(
         "click",
-        () =>
+        () => {
+
             toggleSprite(
                 sprite
-            )
+            );
+
+        }
     );
 
 
@@ -2805,7 +2449,9 @@ function createSpriteCard(
 }
 
 
-
+/* =========================================================
+   PROGRESS
+   ========================================================= */
 
 function updateProgress() {
 
@@ -2825,8 +2471,10 @@ function updateProgress() {
     const percentage =
         total > 0
             ? Math.round(
-                (collected / total) *
-                100
+                (
+                    collected /
+                    total
+                ) * 100
             )
             : 0;
 
@@ -2869,6 +2517,16 @@ function updateProgress() {
     }
 
 
+    if (heroProgress) {
+
+        heroProgress.textContent =
+            currentUser
+                ? `${percentage}%`
+                : "0%";
+
+    }
+
+
     if (familyCount) {
 
         familyCount.textContent =
@@ -2886,12 +2544,10 @@ function updateProgress() {
 
         variantCount.textContent =
             new Set(
-                sprites
-                    .map(
-                        sprite =>
-                            sprite.variant
-                    )
-                    .filter(Boolean)
+                sprites.map(
+                    sprite =>
+                        sprite.variant
+                )
             ).size;
 
     }
@@ -2899,7 +2555,9 @@ function updateProgress() {
 }
 
 
-
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
 
 function showLoading() {
 
@@ -2907,21 +2565,16 @@ function showLoading() {
         "hidden"
     );
 
+
     errorState?.classList.add(
         "hidden"
     );
 
 
-    if (spritesContainer) {
-
-        spritesContainer.style.display =
-            "none";
-
-    }
+    spritesContainer.style.display =
+        "none";
 
 }
-
-
 
 
 function hideLoading() {
@@ -2930,21 +2583,16 @@ function hideLoading() {
         "hidden"
     );
 
+
     errorState?.classList.add(
         "hidden"
     );
 
 
-    if (spritesContainer) {
-
-        spritesContainer.style.display =
-            "";
-
-    }
+    spritesContainer.style.display =
+        "";
 
 }
-
-
 
 
 function showError(
@@ -2956,12 +2604,8 @@ function showError(
     );
 
 
-    if (spritesContainer) {
-
-        spritesContainer.style.display =
-            "none";
-
-    }
+    spritesContainer.style.display =
+        "none";
 
 
     errorState?.classList.remove(
@@ -2976,39 +2620,45 @@ function showError(
 
     }
 
+
+    initializeIcons();
+
 }
 
 
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
 function prettyFamily(
     value
 ) {
 
     if (!value) {
-
         return "Unbekannt";
-
     }
 
 
     return String(value)
+
         .replace(
             /_/g,
             " "
         )
+
         .replace(
             /([a-z])([A-Z])/g,
             "$1 $2"
         )
+
         .replace(
             /\s+/g,
             " "
         )
+
         .trim();
 
 }
-
-
 
 
 function variantLabel(
@@ -3016,9 +2666,7 @@ function variantLabel(
 ) {
 
     if (!variant) {
-
         return "";
-
     }
 
 
@@ -3033,15 +2681,20 @@ function variantLabel(
     }
 
 
-    return String(variant)
+    return String(
+        variant
+    )
+
         .replace(
             /_/g,
             " "
         )
+
         .replace(
             /([a-z])([A-Z])/g,
             "$1 $2"
         )
+
         .replace(
             /^./,
             char =>
@@ -3051,32 +2704,26 @@ function variantLabel(
 }
 
 
-
-
 function seasonLabel(
     season
 ) {
 
     if (!season) {
-
-        return null;
-
+        return "";
     }
 
 
     const match =
-        String(season).match(
-            /^c(\d+)s(\d+)$/i
-        );
+        String(season)
+            .match(
+                /^c(\d+)s(\d+)$/i
+            );
 
 
     if (match) {
 
         return (
-            "Kapitel " +
-            match[1] +
-            " · Season " +
-            match[2]
+            `Kapitel ${match[1]} · Season ${match[2]}`
         );
 
     }
@@ -3092,8 +2739,6 @@ function seasonLabel(
 }
 
 
-
-
 function capitalize(
     value
 ) {
@@ -3105,5 +2750,41 @@ function capitalize(
         char =>
             char.toUpperCase()
     );
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
