@@ -2048,3 +2048,655 @@ footer {
     }
 
 }
+
+/* =========================================================
+   SPRITEVAULT - SUPABASE AUTH
+   ========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   DISCORD LOGIN
+   ========================================================= */
+
+.discord-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 9px 14px;
+
+    border: 1px solid rgba(88, 101, 242, 0.35);
+    border-radius: 10px;
+
+    background: rgba(88, 101, 242, 0.14);
+
+    color: #dfe2ff;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.discord-login:hover {
+    background: rgba(88, 101, 242, 0.24);
+
+    border-color:
+        rgba(88, 101, 242, 0.55);
+
+    transform:
+        translateY(-1px);
+}
+
+
+.discord-symbol {
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   ACCOUNT
+   ========================================================= */
+
+.logged-in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border:
+        1px solid rgba(255,255,255,0.1);
+}
+
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 90px;
+}
+
+
+.user-info strong {
+    color: var(--text);
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+.user-info span {
+    margin-top: 2px;
+
+    color: var(--muted);
+
+    font-size: 8px;
+}
+
+
+.logout-btn {
+    padding: 7px 10px;
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius: 8px;
+
+    background:
+        rgba(255,255,255,0.035);
+
+    color: var(--muted-light);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.18s ease;
+}
+
+
+.logout-btn:hover {
+    border-color:
+        rgba(255,255,255,0.15);
+
+    color: var(--text);
+
+    background:
+        rgba(255,255,255,0.06);
+}
+
+
+/* =========================================================
+   DATABASE STATUS
+   ========================================================= */
+
+.database-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.database-status i {
+    width: 7px;
+    height: 7px;
+
+    display: inline-block;
+
+    border-radius: 50%;
+
+    background:
+        var(--danger);
+
+    box-shadow:
+        0 0 10px
+        rgba(255, 100, 124, 0.35);
+}
+
+
+.database-status i.online {
+    background:
+        var(--success);
+
+    box-shadow:
+        0 0 10px
+        rgba(55, 232, 154, 0.4);
+}
+
+
+/* =========================================================
+   AUTH WARNING
+   ========================================================= */
+
+.auth-warning {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 28px;
+
+    padding: 15px 17px;
+
+    border:
+        1px solid rgba(124,92,255,0.2);
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124,92,255,0.08),
+            rgba(255,255,255,0.02)
+        );
+
+    box-shadow:
+        0 15px 45px
+        rgba(0,0,0,0.15);
+}
+
+
+.warning-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        rgba(124,92,255,0.12);
+
+    border:
+        1px solid rgba(124,92,255,0.22);
+
+    color:
+        #b9adff;
+
+    font-weight: 900;
+}
+
+
+.warning-content {
+    flex: 1;
+}
+
+
+.warning-content strong {
+    display: block;
+
+    color:
+        var(--text);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+.warning-content p {
+    margin-top: 4px;
+
+    color:
+        var(--muted);
+
+    font-size: 9px;
+
+    line-height: 1.5;
+}
+
+
+.auth-warning > button {
+    flex-shrink: 0;
+
+    padding: 9px 13px;
+
+    border:
+        1px solid rgba(124,92,255,0.3);
+
+    border-radius: 9px;
+
+    background:
+        rgba(124,92,255,0.14);
+
+    color:
+        #c9c1ff;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: 0.18s ease;
+}
+
+
+.auth-warning > button:hover {
+    background:
+        rgba(124,92,255,0.23);
+
+    border-color:
+        rgba(124,92,255,0.5);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   COLLECTION LOCK
+   ========================================================= */
+
+.sprites-section {
+    position: relative;
+}
+
+
+.collection-lock {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 20;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: center;
+
+    padding-top: 90px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(7,9,15,0.18),
+            rgba(7,9,15,0.74)
+        );
+
+    backdrop-filter:
+        blur(5px);
+
+    -webkit-backdrop-filter:
+        blur(5px);
+}
+
+
+.collection-lock.hidden {
+    display: none !important;
+}
+
+
+.collection-lock-card {
+    width:
+        min(430px, 90%);
+
+    padding:
+        30px 28px;
+
+    text-align: center;
+
+    border:
+        1px solid rgba(255,255,255,0.09);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(19,23,35,0.97),
+            rgba(10,13,21,0.97)
+        );
+
+    box-shadow:
+        0 30px 80px
+        rgba(0,0,0,0.45),
+
+        0 0 60px
+        rgba(124,92,255,0.07);
+}
+
+
+.collection-lock-icon {
+    width: 52px;
+    height: 52px;
+
+    margin:
+        0 auto 15px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 15px;
+
+    background:
+        rgba(124,92,255,0.12);
+
+    border:
+        1px solid rgba(124,92,255,0.25);
+
+    font-size: 21px;
+}
+
+
+.collection-lock-eyebrow {
+    color:
+        #9184d8;
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing:
+        0.14em;
+}
+
+
+.collection-lock-card h3 {
+    margin:
+        9px 0 7px;
+
+    color:
+        var(--text);
+
+    font-size: 20px;
+    font-weight: 850;
+}
+
+
+.collection-lock-card p {
+    max-width:
+        340px;
+
+    margin:
+        0 auto;
+
+    color:
+        var(--muted);
+
+    font-size: 10px;
+
+    line-height:
+        1.6;
+}
+
+
+.collection-login-btn {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding:
+        12px 15px;
+
+    border:
+        1px solid rgba(88,101,242,0.38);
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(88,101,242,0.25),
+            rgba(88,101,242,0.11)
+        );
+
+    color:
+        #e1e3ff;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+.collection-login-btn:hover {
+    transform:
+        translateY(-2px);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(88,101,242,0.35),
+            rgba(88,101,242,0.15)
+        );
+
+    border-color:
+        rgba(88,101,242,0.58);
+}
+
+
+.collection-login-btn span {
+    margin-right: 6px;
+}
+
+
+.collection-lock-card small {
+    display: block;
+
+    margin-top: 12px;
+
+    color:
+        #51586b;
+
+    font-size: 8px;
+}
+
+
+/* =========================================================
+   BLUR BEHIND LOCK
+   ========================================================= */
+
+.collection-lock:not(.hidden)
+    ~ * {
+    pointer-events: none;
+}
+
+
+.sprites-section:has(.collection-lock:not(.hidden))
+    .sprites-grid {
+    filter:
+        blur(4px);
+
+    opacity:
+        0.48;
+
+    user-select:
+        none;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+    grid-column:
+        1 / -1;
+
+    min-height:
+        220px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
+
+    text-align:
+        center;
+}
+
+
+.empty-state strong {
+    color:
+        var(--text);
+
+    font-size:
+        14px;
+}
+
+
+.empty-state span {
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+}
+
+
+/* =========================================================
+   IMAGE ERROR
+   ========================================================= */
+
+.image-error-text {
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .nav-center {
+        display:
+            none;
+    }
+
+
+    .user-info {
+        display:
+            none;
+    }
+
+
+    .auth-warning {
+        align-items:
+            flex-start;
+
+        flex-wrap:
+            wrap;
+    }
+
+
+    .warning-content {
+        min-width:
+            0;
+    }
+
+
+    .auth-warning > button {
+        width:
+            100%;
+    }
+
+
+    .collection-lock {
+        padding-top:
+            50px;
+    }
+
+
+    .collection-lock-card {
+        padding:
+            24px 20px;
+    }
+
+}
