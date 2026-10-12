@@ -17,8 +17,8 @@
     --muted: #8b93a7;
     --muted-light: #b8bfd0;
 
-    --accent: #7c5cff;
-    --accent-two: #22d3ee;
+    --accent: #d92f45;
+    --accent-two: #aab5c5;
 
     --success: #37e89a;
     --danger: #ff647c;
@@ -2603,4 +2603,163 @@ button:disabled {
             none !important;
     }
 
+}
+
+
+/* =========================================================
+   GHOST ARCHIVE — tactical Fortnite-inspired theme
+   Overrides are intentionally isolated to preserve the existing layout.
+========================================================= */
+:root {
+    --bg: #080b10;
+    --bg-soft: #0d1219;
+    --card: rgba(15, 22, 31, .88);
+    --card-solid: #101720;
+    --border: rgba(214, 224, 238, .11);
+    --border-hover: rgba(222, 55, 73, .55);
+    --text: #f3f5f8;
+    --muted: #8e9aaa;
+    --muted-light: #c4ccd7;
+    --accent: #d92f45;
+    --accent-two: #b8c2ce;
+    --success: #69d5a4;
+    --danger: #ff596c;
+    --radius: 12px;
+}
+
+body {
+    background:
+      linear-gradient(135deg, rgba(217,47,69,.045) 0 1px, transparent 1px 38px),
+      linear-gradient(45deg, rgba(196,207,222,.025) 0 1px, transparent 1px 54px),
+      radial-gradient(ellipse at 50% -20%, rgba(217,47,69,.18), transparent 48%),
+      #080b10;
+    background-attachment: fixed;
+}
+
+.site-header {
+    background: rgba(8, 11, 16, .91);
+    border-bottom-color: rgba(217,47,69,.3);
+}
+
+.brand-mark {
+    border-radius: 7px 7px 7px 2px;
+    background: linear-gradient(145deg, #f04b5e, #8c1829);
+    box-shadow: 0 0 24px rgba(217,47,69,.19);
+}
+
+.brand-title {
+    letter-spacing: .11em;
+    font-style: italic;
+}
+
+.brand-subtitle {
+    letter-spacing: .12em;
+}
+
+.btn { border-radius: 7px; text-transform: uppercase; letter-spacing: .035em; }
+.btn-primary {
+    border-color: rgba(255, 91, 108, .4);
+    background: linear-gradient(110deg, #c6253b, #e33a50);
+    box-shadow: 0 7px 22px rgba(217,47,69,.15);
+}
+.btn-primary:hover { box-shadow: 0 10px 28px rgba(217,47,69,.28); }
+.btn-secondary { border-radius: 7px; }
+
+.hero { position: relative; }
+.hero::before {
+    content: "GHOST // CLASSIFIED";
+    position: absolute;
+    top: 24px;
+    right: max(20px, calc((100vw - 1180px) / 2));
+    color: rgba(214,224,238,.22);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .22em;
+    pointer-events: none;
+}
+.hero-eyebrow {
+    color: #ff6a7b;
+    letter-spacing: .17em;
+    font-size: 10px;
+    font-weight: 800;
+}
+.hero-title { text-transform: uppercase; letter-spacing: -.055em; font-style: italic; }
+.hero-title span {
+    color: #e83a50;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    text-shadow: 0 0 32px rgba(217,47,69,.18);
+}
+.hero-description { max-width: 560px; line-height: 1.8; }
+
+.warning-card,
+.stat-card,
+.collection-panel,
+.family-group,
+.state-card,
+.empty-state {
+    border-radius: 10px;
+    border-color: rgba(214,224,238,.11);
+    background: linear-gradient(145deg, rgba(20,28,39,.93), rgba(10,14,20,.96));
+    box-shadow: 0 16px 40px rgba(0,0,0,.16);
+}
+
+input, select, .search-box, .filter-control {
+    border-radius: 7px !important;
+}
+
+.family-variant-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(203,214,229,.11);
+    background: linear-gradient(155deg, #18212d, #0c1118 75%);
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.family-variant-card::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(217,47,69,.75), transparent);
+    opacity: .48;
+    pointer-events: none;
+}
+.family-variant-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(232,58,80,.58);
+    box-shadow: 0 12px 26px rgba(0,0,0,.26), 0 0 0 1px rgba(217,47,69,.06);
+}
+.family-variant-card.collected { border-color: rgba(105,213,164,.42); }
+.family-variant-card.collected::before { background: linear-gradient(90deg, transparent, #69d5a4, transparent); }
+.family-variant-image-wrap {
+    background:
+      radial-gradient(ellipse at 50% 70%, rgba(130,151,177,.12), transparent 65%),
+      linear-gradient(145deg, #1b2634, #101720);
+}
+.family-variant-image { filter: drop-shadow(0 8px 12px rgba(0,0,0,.32)); transition: transform 220ms ease; }
+.family-variant-card:hover .family-variant-image { transform: scale(1.045); }
+.family-variant-state { border-radius: 5px !important; background: rgba(8,11,16,.82) !important; border: 1px solid rgba(255,255,255,.12); }
+.family-variant-content { gap: 9px; }
+.family-variant-name { font-weight: 750; letter-spacing: -.015em; }
+.family-variant-meta { gap: 6px; flex-wrap: wrap; }
+.family-variant-rarity, .family-variant-type { border-radius: 4px; letter-spacing: .025em; }
+.family-variant-rarity { background: rgba(217,47,69,.12); color: #ff8491; border: 1px solid rgba(217,47,69,.2); }
+.family-variant-type { background: rgba(195,207,223,.07); border: 1px solid rgba(195,207,223,.09); }
+
+.database-status.online { color: #69d5a4; }
+.site-footer { border-top-color: rgba(217,47,69,.2); }
+::selection { color: #fff; background: rgba(217,47,69,.55); }
+:focus-visible { outline: 2px solid #f04b5e; outline-offset: 3px; }
+
+@media (max-width: 640px) {
+    .hero::before { display: none; }
+    .brand-subtitle { font-size: 8px; }
+    .hero-title { letter-spacing: -.045em; }
+    .family-variant-card:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
