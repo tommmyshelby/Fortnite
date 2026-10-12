@@ -1,9 +1,6 @@
 "use strict";
 
 
-/* =========================================================
-   SUPABASE
-   ========================================================= */
 
 const SUPABASE_URL =
     "https://ykbqnxqlbttqzaerqgnb.supabase.co";
@@ -24,9 +21,7 @@ const WEBSITE_URL =
     "https://tommmyshelby.github.io/Fortnite/";
 
 
-/* =========================================================
-   SPRITE SOURCES
-   ========================================================= */
+
 
 const SPRITES_SOURCES = [
 
@@ -41,9 +36,6 @@ const IMAGE_PROXY =
     "https://images.weserv.nl/?url=";
 
 
-/* =========================================================
-   VARIANTS
-   ========================================================= */
 
 const VARIANT_LABELS = {
 
@@ -77,9 +69,6 @@ const VARIANT_LABELS = {
 };
 
 
-/* =========================================================
-   STATE
-   ========================================================= */
 
 let currentUser =
     null;
@@ -110,9 +99,6 @@ let currentCollectionFilter =
     "all";
 
 
-/* =========================================================
-   DOM
-   ========================================================= */
 
 const $ =
     selector =>
@@ -2195,13 +2181,20 @@ function createSpriteCard(
         );
 
 
+    const rarityKey = String(sprite.rarity || "unbekannt")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
     card.className =
-        "family-variant-card" +
-        (
-            collected
-                ? " collected"
-                : ""
-        );
+        "family-variant-card rarity-" + (rarityKey || "unbekannt") +
+        (collected ? " collected" : "");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-pressed", collected ? "true" : "false");
+    card.setAttribute("aria-label", `${sprite.name}, ${collected ? "gesammelt" : "nicht gesammelt"}. Zum Ändern anklicken.`);
 
 
     /*
@@ -2305,10 +2298,7 @@ function createSpriteCard(
     }
 
 
-    /*
-     * STATUS
-     */
-
+  
     const state =
         document.createElement(
             "div"
@@ -2432,26 +2422,22 @@ function createSpriteCard(
      * CLICK
      */
 
-    card.addEventListener(
-        "click",
-        () => {
+    const activateCard = () => toggleSprite(sprite);
 
-            toggleSprite(
-                sprite
-            );
-
+    card.addEventListener("click", activateCard);
+    card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            activateCard();
         }
-    );
-
+    });
 
     return card;
 
 }
 
 
-/* =========================================================
-   PROGRESS
-   ========================================================= */
+
 
 function updateProgress() {
 
@@ -2555,9 +2541,7 @@ function updateProgress() {
 }
 
 
-/* =========================================================
-   LOADING / ERROR
-   ========================================================= */
+
 
 function showLoading() {
 
@@ -2626,9 +2610,7 @@ function showError(
 }
 
 
-/* =========================================================
-   HELPERS
-   ========================================================= */
+
 
 function prettyFamily(
     value
